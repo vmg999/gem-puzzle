@@ -5,7 +5,6 @@
 
 :root{
     --size: 400px;
-    
 }
 
 .main{
@@ -28,8 +27,6 @@
 }
 
 .tile{
-    width: calc(var(--size) / 4);
-    height: calc(var(--size) / 4);
     background-color: wheat;
     display: flex;
     justify-content: center;
@@ -45,6 +42,36 @@
     transition: all 0.3s;
 }
 
+.tilesize3{
+    width: calc(var(--size)/ 3);
+    height: calc(var(--size)/ 3);
+}
+.tilesize4{
+    width: calc(var(--size)/ 4);
+    height: calc(var(--size)/ 4);
+}
+.tilesize5{
+    width: calc(var(--size)/ 5);
+    height: calc(var(--size)/ 5);
+}
+.tilesize6{
+    width: calc(var(--size)/ 6);
+    height: calc(var(--size)/ 6);
+}
+.tilesize7{
+    width: calc(var(--size)/ 7);
+    height: calc(var(--size)/ 7);
+}
+.tilesize8{
+    width: calc(var(--size)/ 8);
+    height: calc(var(--size)/ 8);
+}
+
 .tile:hover{
     cursor: pointer;
+}
+
+.modal{
+    width: 300px;
+    height: 200px;
 }
