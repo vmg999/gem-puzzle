@@ -129,9 +129,38 @@ const puzzle = {
     },
     
     createArr(){ // массив с рандомными числами
+        size =this.parameters.puzzleSize;
         let puzzle=[];
-        for(let i=0;i<this.parameters.puzzleSize**2;i++) puzzle.push(i);
-        puzzle = puzzle.sort(()=>Math.random()-0.5);
+        for(let i=0;i<size**2;i++) puzzle.push(i);
+
+        function mix() {
+            puzzle = puzzle.sort(()=>Math.random()-0.5);
+        }
+        mix();
+
+        while(!checkEven()){
+            mix();
+        }
+        
+        // проверка четности расклада
+        function checkEven() {
+            sum = Math.ceil((puzzle.indexOf(0)+1)/size);
+            l=puzzle.length;
+            for(let i=0;i<l;i++){
+                k=0;
+                for(let j=0;j<l;j++){
+                    if(i<j && puzzle[i]>puzzle[j] && puzzle[j]!=0){
+                        k++;
+                    }
+                }
+                sum+=k;
+            }
+            if(sum%2 == 0){
+                return true;
+            }else{
+                return false;
+            }       
+        }
         
         return puzzle;
         },
