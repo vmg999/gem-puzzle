@@ -7,6 +7,11 @@ const puzzle = {
             top: null,
             left: null,
             position: null,
+        },
+        counter:{
+            counter: {},
+            timer: {},
+            moves: {},
         }
     },
     parameters:{
@@ -16,6 +21,8 @@ const puzzle = {
     counter:{
         moves: 0,
         time: 0,
+        startTime: null,
+        endTime: null,
     },
 
     init(s=4){
@@ -43,7 +50,7 @@ const puzzle = {
         this.createTiles();
         this.placeTiles();
 
-        
+        this.createCounter();
         
     },
 
@@ -107,6 +114,9 @@ const puzzle = {
             this.elements.emptyTile.position = p;
 
             this.counter.moves++;
+            
+            this.elements.counter.moves.innerHTML = this.counter.moves; // счет хода
+            startTimer();
             this.checkWin();
         }
     },
@@ -114,6 +124,7 @@ const puzzle = {
     checkWin(){
         if(this.elements.tiles.every(el=>el.innerHTML == el.position)){
             setTimeout(()=>alert("win"), 300);
+            stopTimer();
         }
     },
     
@@ -123,10 +134,55 @@ const puzzle = {
         puzzle = puzzle.sort(()=>Math.random()-0.5);
         
         return puzzle;
-        }
+        },
+    
+    createCounter(){
+        this.elements.counter.counter = document.createElement("div");
+        this.elements.counter.counter.classList.add("counter");
+
+        this.elements.counter.moves = document.createElement("div");
+        this.elements.counter.moves.classList.add("moves");
+        this.elements.counter.moves.innerHTML = 0;
+
+        this.elements.counter.timer = document.createElement("div");
+        this.elements.counter.timer.classList.add("timer");
+        this.elements.counter.timer.innerHTML = "00:00:00";
+
+        this.elements.counter.counter.append(this.elements.counter.moves);
+        this.elements.counter.counter.append(this.elements.counter.timer);
+        this.elements.main.append(this.elements.counter.counter);
+
+    },
+
 }
 
 
 
 puzzle.init(4);
 
+
+
+
+function startTimer() {
+    if(puzzle.counter.startTime == null){
+        puzzle.counter.startTime = Date.now();
+    }
+
+    t = Math.floor((Date.now() - puzzle.counter.startTime)/1000);
+    s = t % 60;
+    m = Math.floor(t/60)%3600;
+    h = Math.floor(t/3600)%24;
+    puzzle.elements.counter.timer.innerHTML = `${addZero(h)}:${addZero(m)}:${addZero(s)}`;
+
+    if(puzzle.counter.endTime == null){
+        setTimeout(startTimer, 1000);
+    }
+}
+
+function stopTimer() {
+    puzzle.counter.endTime = Date.now();
+}
+
+function addZero(n) {
+    return (parseInt(n, 10) < 10 ? '0' : '') + n;
+}
