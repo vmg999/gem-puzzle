@@ -12,6 +12,17 @@ const puzzle = {
             counter: {},
             timer: {},
             moves: {},
+        },
+        menu:{
+            menu: null,
+            newGame: null,
+            neGameSize: null,
+            table: null,
+            finish: null,
+        },
+        modal:{
+            modal: null,
+            text: null,
         }
     },
     parameters:{
@@ -34,6 +45,7 @@ const puzzle = {
         this.elements.pzl.classList.add("puzzle");
 
         body.append(this.elements.main);
+        this.createCounter();
         this.elements.main.append(this.elements.pzl);
 
         //----------размер поля-----------
@@ -50,8 +62,9 @@ const puzzle = {
         this.createTiles();
         this.placeTiles();
 
-        this.createCounter();
+        this.createMenu();
         
+        this.createModal();
     },
 
     createTiles(){
@@ -123,8 +136,9 @@ const puzzle = {
 
     checkWin(){
         if(this.elements.tiles.every(el=>el.innerHTML == el.position)){
-            setTimeout(()=>alert("win"), 300);
             stopTimer();
+            this.elements.modal.text = `<p>Ура! Вы решили головоломку</p><p>за ${this.elements.counter.timer.innerHTML} и ${this.counter.moves} ход${this.padeg(this.counter.moves)}</p>`;
+            this.showModal();
         }
     },
     
@@ -155,11 +169,19 @@ const puzzle = {
                 }
                 sum+=k;
             }
-            if(sum%2 == 0){
-                return true;
-            }else{
-                return false;
-            }       
+            if(size%2 == 0){
+                if(sum%2 == 0){
+                    return true;
+                }else{
+                    return false;
+                }       
+            }else if(size%2 != 0){
+                if(sum%2 == 0){
+                    return false;
+                }else{
+                    return true;
+                }       
+            }
         }
         
         return puzzle;
@@ -175,7 +197,7 @@ const puzzle = {
 
         this.elements.counter.timer = document.createElement("div");
         this.elements.counter.timer.classList.add("timer");
-        this.elements.counter.timer.innerHTML = "00:00:00";
+        this.elements.counter.timer.innerHTML = "00:00";
 
         this.elements.counter.counter.append(this.elements.counter.moves);
         this.elements.counter.counter.append(this.elements.counter.timer);
@@ -183,6 +205,63 @@ const puzzle = {
 
     },
 
+    createMenu(){
+        this.elements.menu.menu = document.createElement("div");
+        this.elements.menu.menu.classList.add("menu");
+
+        this.elements.menu.newGame = document.createElement("button");
+        this.elements.menu.newGame.classList.add("button");
+        this.elements.menu.newGame.innerHTML = "Начать новую игру";
+
+        this.elements.menu.newGameSize = document.createElement("select");
+        this.elements.menu.newGameSize.setAttribute("name", "select");
+        this.elements.menu.newGameSize.classList.add("input");
+        this.elements.menu.newGameSize.innerHTML = "<option value='value1'>Размер поля 3x3</option>\
+                                            <option value='value2' selected>Размер поля 4x4</option>\
+                                            <option value='value3'>Размер поля 5x5</option>\
+                                            <option value='value4'>Размер поля 6x6</option>\
+                                            <option value='value5'>Размер поля 7x7</option>\
+                                            <option value='value6'>Размер поля 8x8</option>";
+
+        this.elements.menu.table = document.createElement("button");
+        this.elements.menu.table.classList.add("button");
+        this.elements.menu.table.innerHTML = "Таблица лучших результатов";
+
+        this.elements.menu.finish = document.createElement("button");
+        this.elements.menu.finish.classList.add("button");
+        this.elements.menu.finish.innerHTML = "Завершить автоматически";
+
+        this.elements.menu.menu.append(this.elements.menu.newGame);
+        this.elements.menu.menu.append(this.elements.menu.newGameSize);
+        this.elements.menu.menu.append(this.elements.menu.table);
+        this.elements.menu.menu.append(this.elements.menu.finish);
+
+        this.elements.main.append(this.elements.menu.menu);
+    },
+
+    createModal(){
+        const body = document.querySelector(".body");
+        this.elements.modal.modal = document.createElement("div");
+        this.elements.modal.modal.classList.add("modal");
+        body.append(this.elements.modal.modal);
+    },
+    showModal(){
+        this.elements.modal.modal.innerHTML = this.elements.modal.text;
+        this.elements.modal.modal.classList.toggle("modal-active");
+    },
+    hideModal(){
+        this.elements.modal.modal.classList.toggle("modal-active");
+    },
+
+    padeg(n){
+        if(n%10 == 1){
+            return "";
+        }else if(n%10 >1 && n%10 <5){
+            return "a";
+        }else{
+            return "ов";
+        }
+    }
 }
 
 
@@ -200,8 +279,8 @@ function startTimer() {
     t = Math.floor((Date.now() - puzzle.counter.startTime)/1000);
     s = t % 60;
     m = Math.floor(t/60)%3600;
-    h = Math.floor(t/3600)%24;
-    puzzle.elements.counter.timer.innerHTML = `${addZero(h)}:${addZero(m)}:${addZero(s)}`;
+    // h = Math.floor(t/3600)%24;
+    puzzle.elements.counter.timer.innerHTML = `${addZero(m)}:${addZero(s)}`;
 
     if(puzzle.counter.endTime == null){
         setTimeout(startTimer, 1000);

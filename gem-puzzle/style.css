@@ -7,13 +7,25 @@
   --size: 400px;
 }
 
+.body{
+    background: url("assets/img/fon4.jpg");
+    background-size: cover;
+    height: 100vh;
+    width: 99vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+}
 .main {
-  width: 1000px;
+  width: 75vw;
   min-height: 500px;
-  background-color: rgba(94, 190, 235, 0.5);
+  background-color: rgba(98, 132, 148, 0.5);
+
   display: flex;
-  justify-content: center;
-  margin: 0 auto;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
 }
 
 .puzzle {
@@ -39,7 +51,7 @@
   left: 0;
   top: 0;
 
-  transition: all 0.3s;
+  transition: all 0.2s;
 }
 
 .tilesize3 {
@@ -72,10 +84,6 @@
   background-color: rgb(245, 194, 99);
 }
 
-.modal {
-  width: 300px;
-  height: 200px;
-}
 
 /* ----------counter---------- */
 .counter {
@@ -101,3 +109,57 @@
   font-size: 2rem;
   text-align: center;
 }
+
+/* ----------menu------------ */
+.menu{
+    width: 300px;
+    height: 400px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.button{
+    font-size: 1.1rem;
+    width: 12rem;
+    min-height: 3rem;
+    border-radius: 3px;
+}
+
+.button:hover{
+    cursor: pointer;
+    transform: scale(1.05);
+}
+.input{
+    font-size: 1rem;
+    width: 10rem;
+    min-height: 2rem;
+    border-radius: 3px;
+}
+
+
+/* --------------modal---------------- */
+
+.modal {
+    width: 40vw;
+    height: 40vh;
+    position: fixed;
+    top: 30vh;
+    left: 30vw;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 0.7vw;
+    transform: scale(0);
+
+    font-size: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-active{
+      transform: scale(1);
+      transition: 0.3s;
+  }
