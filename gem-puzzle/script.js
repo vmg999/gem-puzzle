@@ -23,17 +23,21 @@ const puzzle = {
         modal:{
             modal: null,
             text: null,
+            ok: null,
+            newGame: null
         }
     },
     parameters:{
         puzzleSize: 4,
         puzzleBoxSize: 400,
+        isnewgame: true,
     },
     counter:{
         moves: 0,
         time: 0,
         startTime: null,
         endTime: null,
+        timeoutID: null,
     },
 
     init(s=4){
@@ -129,7 +133,10 @@ const puzzle = {
             this.counter.moves++;
             
             this.elements.counter.moves.innerHTML = this.counter.moves; // счет хода
-            startTimer();
+            if(this.parameters.isnewgame){
+                startTimer();
+                this.parameters.isnewgame = false;
+            }
             this.checkWin();
         }
     },
@@ -137,7 +144,7 @@ const puzzle = {
     checkWin(){
         if(this.elements.tiles.every(el=>el.innerHTML == el.position)){
             stopTimer();
-            this.elements.modal.text = `<p>Ура! Вы решили головоломку</p><p>за ${this.elements.counter.timer.innerHTML} и ${this.counter.moves} ход${this.padeg(this.counter.moves)}</p>`;
+            this.elements.modal.text.innerHTML = `<p>Ура! Вы решили головоломку</p><p>за ${this.elements.counter.timer.innerHTML} и ${this.counter.moves} ход${this.padeg(this.counter.moves)}</p>`;
             this.showModal();
         }
     },
@@ -211,7 +218,8 @@ const puzzle = {
 
         this.elements.menu.newGame = document.createElement("button");
         this.elements.menu.newGame.classList.add("button");
-        this.elements.menu.newGame.innerHTML = "Начать новую игру";
+        this.elements.menu.newGame.innerHTML = "Начать новый пазл";
+        this.elements.menu.newGame.addEventListener('click', this.newGame);
 
         this.elements.menu.newGameSize = document.createElement("select");
         this.elements.menu.newGameSize.setAttribute("name", "select");
@@ -243,14 +251,39 @@ const puzzle = {
         const body = document.querySelector(".body");
         this.elements.modal.modal = document.createElement("div");
         this.elements.modal.modal.classList.add("modal");
+
+        this.elements.modal.text = document.createElement("div");
+        this.elements.modal.text.classList.add("modaltext");
+
+        buttons = document.createElement("div");
+        buttons.classList.add("btns");
+        this.elements.modal.ok = document.createElement("button")
+        this.elements.modal.ok.classList.add("modalbutton");
+        this.elements.modal.ok.innerHTML = "Ok";
+        this.elements.modal.ok.addEventListener("click", this.hideModal);
+
+        this.elements.modal.newGame = document.createElement("button");
+        this.elements.modal.newGame.classList.add("modalbutton");
+        this.elements.modal.newGame.innerHTML = "Начать новый пазл";
+        this.elements.modal.newGame.addEventListener("click", ()=>{
+            this.hideModal();
+            this.newGame();
+        })
+
+        buttons.append(this.elements.modal.ok);
+        buttons.append(this.elements.modal.newGame);
+
+        this.elements.modal.modal.append(this.elements.modal.text);
+        this.elements.modal.modal.append(buttons);
+
+        
         body.append(this.elements.modal.modal);
     },
     showModal(){
-        this.elements.modal.modal.innerHTML = this.elements.modal.text;
         this.elements.modal.modal.classList.toggle("modal-active");
     },
     hideModal(){
-        this.elements.modal.modal.classList.toggle("modal-active");
+        puzzle.elements.modal.modal.classList.toggle("modal-active");
     },
 
     padeg(n){
@@ -261,6 +294,28 @@ const puzzle = {
         }else{
             return "ов";
         }
+    },
+
+    newGame(){
+        puzzle.parameters.isnewgame = true;
+        stopTimer();
+        puzzle.elements.tiles = [];
+        puzzle.elements.pzl.innerHTML = "";
+        puzzle.counter.moves = 0;
+        puzzle.elements.counter.moves.innerHTML = 0;
+        puzzle.counter.time = 0;
+        puzzle.elements.counter.timer.innerHTML = "00:00";
+        puzzle.counter.startTime = null;
+        puzzle.counter.endTime = null;
+        puzzle.elements.pzl.classList.add("newpzl");
+        clearTimeout(puzzle.counter.timeoutID);
+
+        puzzle.createTiles();
+        puzzle.placeTiles();
+
+        setTimeout(()=>{
+            puzzle.elements.pzl.classList.remove("newpzl");
+        }, 1100);
     }
 }
 
@@ -283,7 +338,7 @@ function startTimer() {
     puzzle.elements.counter.timer.innerHTML = `${addZero(m)}:${addZero(s)}`;
 
     if(puzzle.counter.endTime == null){
-        setTimeout(startTimer, 1000);
+        puzzle.counter.timeoutID = setTimeout(startTimer, 1000);
     }
 }
 
