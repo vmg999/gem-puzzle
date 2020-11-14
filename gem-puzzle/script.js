@@ -16,7 +16,7 @@ const puzzle = {
         menu:{
             menu: null,
             newGame: null,
-            neGameSize: null,
+            newGameSize: null,
             table: null,
             finish: null,
         },
@@ -60,8 +60,8 @@ const puzzle = {
         }else{
             this.parameters.puzzleSize = s;
         }
-        this.parameters.puzzleBoxSize = this.parameters.puzzleSize * 100;
-        document.styleSheets[0].cssRules[1].style.cssText=`--size: ${this.parameters.puzzleBoxSize}px;`;
+        this.parameters.puzzleBoxSize = this.parameters.puzzleSize * 100; // - убрать
+        document.styleSheets[0].cssRules[1].style.cssText=`--size: ${this.parameters.puzzleBoxSize}px;`;// - убрать
 
         this.createTiles();
         this.placeTiles();
@@ -224,12 +224,12 @@ const puzzle = {
         this.elements.menu.newGameSize = document.createElement("select");
         this.elements.menu.newGameSize.setAttribute("name", "select");
         this.elements.menu.newGameSize.classList.add("input");
-        this.elements.menu.newGameSize.innerHTML = "<option value='value1'>Размер поля 3x3</option>\
-                                            <option value='value2' selected>Размер поля 4x4</option>\
-                                            <option value='value3'>Размер поля 5x5</option>\
-                                            <option value='value4'>Размер поля 6x6</option>\
-                                            <option value='value5'>Размер поля 7x7</option>\
-                                            <option value='value6'>Размер поля 8x8</option>";
+        this.elements.menu.newGameSize.innerHTML = "<option value='3'>Размер поля 3x3</option>\
+                                            <option value='4' selected>Размер поля 4x4</option>\
+                                            <option value='5'>Размер поля 5x5</option>\
+                                            <option value='6'>Размер поля 6x6</option>\
+                                            <option value='7'>Размер поля 7x7</option>\
+                                            <option value='8'>Размер поля 8x8</option>";
 
         this.elements.menu.table = document.createElement("button");
         this.elements.menu.table.classList.add("button");
@@ -298,6 +298,9 @@ const puzzle = {
 
     newGame(){
         puzzle.parameters.isnewgame = true;
+        puzzle.parameters.puzzleSize = +puzzle.elements.menu.newGameSize.value;
+        puzzle.parameters.puzzleBoxSize = puzzle.parameters.puzzleSize * 100;// - убрать
+        document.styleSheets[0].cssRules[1].style.cssText=`--size: ${puzzle.parameters.puzzleBoxSize}px;`;// - убрать
         stopTimer();
         puzzle.elements.tiles = [];
         puzzle.elements.pzl.innerHTML = "";
