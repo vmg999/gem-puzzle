@@ -62,17 +62,22 @@ const puzzle = {
         this.elements.main.append(this.elements.pzl);
 
         //----------размер поля-----------
-        if(s < 3){
-            this.parameters.puzzleSize = 3;
-        }else if(s > 8){
-            this.parameters.puzzleSize = 8;
+        if(localStorage["puzzleSize"] != null && localStorage["puzzleSize"] != 0){
+            this.parameters.puzzleSize = localStorage["puzzleSize"];
         }else{
-            this.parameters.puzzleSize = s;
+            if(s < 3){
+                this.parameters.puzzleSize = 3;
+            }else if(s > 8){
+                this.parameters.puzzleSize = 8;
+            }else{
+                this.parameters.puzzleSize = s;
+            }
         }
         this.parameters.puzzleBoxSize = this.parameters.puzzleSize * 100; // - убрать
         document.styleSheets[0].cssRules[1].style.cssText=`--size: ${this.parameters.puzzleBoxSize}px;`;// - убрать
 
         if(localStorage['puzzle'] == null){
+            localStorage.setItem("puzzleSize", "");
             localStorage.setItem("puzzle", "");
             localStorage.setItem("emptyTile", "");
             localStorage.setItem("moves", "");
@@ -216,12 +221,14 @@ const puzzle = {
 
     //---------------------------------
     saveGame(){
+        localStorage["puzzleSize"] = this.parameters.puzzleSize;
         localStorage['puzzle'] = JSON.stringify(this.elements.tiles);
         localStorage['emptyTile'] = JSON.stringify(this.elements.emptyTile);
         localStorage['moves'] = this.counter.moves;
 
     },
     getSavedGame(){
+        this.parameters.puzzleSize = localStorage["puzzleSize"];
         this.elements.savedTiles = JSON.parse(localStorage["puzzle"]);
         this.elements.savedEmptyTile = JSON.parse(localStorage['emptyTile']);
         this.counter.moves = localStorage['moves'];
