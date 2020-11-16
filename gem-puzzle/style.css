@@ -100,14 +100,7 @@
   justify-content: space-evenly;
   align-items: center;
 }
-.timer {
-  background-color: #fff;
-  width: 160px;
-  height: 40px;
-  font-size: 2rem;
-  text-align: center;
-}
-.moves {
+.timer, .moves {
   background-color: #fff;
   width: 160px;
   height: 40px;
