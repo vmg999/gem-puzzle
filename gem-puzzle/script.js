@@ -286,7 +286,7 @@ class gemPuzzle {
         
         // проверка четности расклада
         function checkEven() {
-            let sum = Math.ceil((puzzle.indexOf(0)+1)/size);
+            let sum = 0;
             let l=puzzle.length;
             for(let i=0;i<l;i++){
                 let k=0;
@@ -297,19 +297,16 @@ class gemPuzzle {
                 }
                 sum+=k;
             }
+
             if(size%2 == 0){
-                if(sum%2 == 0){
-                    return true;
-                }else{
-                    return false;
-                }       
-            }else if(size%2 != 0){
-                if(sum%2 == 0){
-                    return false;
-                }else{
-                    return true;
-                }       
+                sum += Math.ceil((puzzle.indexOf(0)+1)/size);
             }
+
+            if(sum%2 == 0){
+                return true;
+            }else{
+                return false;
+            }   
         }
         
         return puzzle;
