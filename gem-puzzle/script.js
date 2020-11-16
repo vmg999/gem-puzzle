@@ -3,11 +3,13 @@ const puzzle = {
         main: null,
         pzl: null,
         tiles: [],
+        savedTiles: null,
         emptyTile: {
             top: null,
             left: null,
             position: null,
         },
+        savedEmptyTile: null,
         counter:{
             counter: {},
             timer: {},
@@ -55,6 +57,7 @@ const puzzle = {
         this.elements.pzl.classList.add("puzzle");
 
         body.append(this.elements.main);
+        if(localStorage['moves'] != null) this.counter.moves = localStorage['moves'];
         this.createCounter();
         this.elements.main.append(this.elements.pzl);
 
@@ -69,11 +72,21 @@ const puzzle = {
         this.parameters.puzzleBoxSize = this.parameters.puzzleSize * 100; // - убрать
         document.styleSheets[0].cssRules[1].style.cssText=`--size: ${this.parameters.puzzleBoxSize}px;`;// - убрать
 
-        this.createTiles();
-        this.placeTiles();
+        if(localStorage['puzzle'] == null){
+            localStorage.setItem("puzzle", "");
+            localStorage.setItem("emptyTile", "");
+            localStorage.setItem("moves", "");
+            localStorage.setItem("time", "");
+            this.createTiles();
+            this.placeTiles();
+            this.saveGame();
+        }else{
+           this.getSavedGame();
+           this.reCreateAndPlaceTiles();
+        }
+        
 
         this.createMenu();
-        
         this.createModal();
     },
 
@@ -85,6 +98,7 @@ const puzzle = {
             tile.classList.add(`tilesize${this.parameters.puzzleSize}`);
             tile.setAttribute("draggable", "true");
             tile.innerHTML = el;
+            tile.numValue = el;
             tile.left = 0;
             tile.top = 0;
             if(el == 0) {
@@ -127,6 +141,50 @@ const puzzle = {
         })
     },
 
+    reCreateAndPlaceTiles(){
+        this.elements.savedTiles.forEach((el)=>{    
+            const tile = document.createElement("div");
+            tile.classList.add("tile");
+            tile.classList.add(`tilesize${this.parameters.puzzleSize}`);
+            tile.setAttribute("draggable", "true");
+            tile.innerHTML = el.numValue;
+            tile.numValue = el.numValue;
+            tile.left = el.left;
+            tile.top = el.top;
+            tile.position = el.position;
+            tile.key = el.key;
+            if(el.numValue == 0) {
+                tile.style.display = "none";
+                tile.empty = true;
+                this.elements.emptyTile.top = this.elements.savedEmptyTile.top;
+                this.elements.emptyTile.left = this.elements.savedEmptyTile.left;
+                this.elements.emptyTile.position = this.elements.savedEmptyTile.position;
+            }
+            this.elements.tiles.push(tile);
+        });
+
+        this.parameters.tileSize = this.parameters.puzzleBoxSize / this.parameters.puzzleSize;
+
+        this.elements.tiles.forEach((el)=>{
+            el.style.left = el.left + "px";
+            el.style.top = el.top + "px";
+
+            el.addEventListener("click", ()=>{
+                this.moveTile(el.key);
+            });
+
+            el.addEventListener("dragstart", (e)=>{
+                this.dragStart(e);
+            });
+            el.addEventListener("dragend", (e)=>{
+                this.dragEnd(e);
+            });
+
+            this.elements.pzl.append(el);
+        })
+
+    },
+
     moveTile(k){
         x = this.elements.tiles[k].left;
         y = this.elements.tiles[k].top;
@@ -151,7 +209,23 @@ const puzzle = {
                 this.parameters.isNewGame = false;
             }
             this.checkWin();
+
+            this.saveGame();
         }
+    },
+
+    //---------------------------------
+    saveGame(){
+        localStorage['puzzle'] = JSON.stringify(this.elements.tiles);
+        localStorage['emptyTile'] = JSON.stringify(this.elements.emptyTile);
+        localStorage['moves'] = this.counter.moves;
+
+    },
+    getSavedGame(){
+        this.elements.savedTiles = JSON.parse(localStorage["puzzle"]);
+        this.elements.savedEmptyTile = JSON.parse(localStorage['emptyTile']);
+        this.counter.moves = localStorage['moves'];
+        this.counter.time = localStorage['time'];
     },
     // --------------drag&drop-----------------
     dragStart(e){
@@ -238,11 +312,19 @@ const puzzle = {
 
         this.elements.counter.moves = document.createElement("div");
         this.elements.counter.moves.classList.add("moves");
-        this.elements.counter.moves.innerHTML = 0;
+        this.elements.counter.moves.innerHTML = this.counter.moves;
 
         this.elements.counter.timer = document.createElement("div");
         this.elements.counter.timer.classList.add("timer");
-        this.elements.counter.timer.innerHTML = "00:00";
+        if(localStorage["time"] != null && localStorage["time"] != 0){
+            t=localStorage["time"];
+            s = t % 60;
+            m = Math.floor(t/60)%3600;
+            this.elements.counter.timer.innerHTML = `${addZero(m)}:${addZero(s)}`;
+        }else{
+            this.elements.counter.timer.innerHTML = "00:00";
+        }
+        
 
         this.elements.counter.counter.append(this.elements.counter.moves);
         this.elements.counter.counter.append(this.elements.counter.timer);
@@ -257,7 +339,9 @@ const puzzle = {
         this.elements.menu.newGame = document.createElement("button");
         this.elements.menu.newGame.classList.add("button");
         this.elements.menu.newGame.innerHTML = "Начать новый пазл";
-        this.elements.menu.newGame.addEventListener('click', this.newGame);
+        this.elements.menu.newGame.addEventListener('click', ()=>{
+            this.newGame();
+        });
 
         this.elements.menu.newGameSize = document.createElement("select");
         this.elements.menu.newGameSize.setAttribute("name", "select");
@@ -335,28 +419,32 @@ const puzzle = {
     },
 
     newGame(){
-        puzzle.parameters.isNewGame = true;
-        puzzle.parameters.puzzleSize = +puzzle.elements.menu.newGameSize.value;
-        puzzle.parameters.puzzleBoxSize = puzzle.parameters.puzzleSize * 100;// - убрать
-        document.styleSheets[0].cssRules[1].style.cssText=`--size: ${puzzle.parameters.puzzleBoxSize}px;`;// - убрать
+        this.parameters.isNewGame = true;
+        this.parameters.puzzleSize = +this.elements.menu.newGameSize.value;
+        this.parameters.puzzleBoxSize = this.parameters.puzzleSize * 100;// - убрать
+        document.styleSheets[0].cssRules[1].style.cssText=`--size: ${this.parameters.puzzleBoxSize}px;`;// - убрать
         stopTimer();
-        puzzle.elements.tiles = [];
-        puzzle.elements.pzl.innerHTML = "";
-        puzzle.counter.moves = 0;
-        puzzle.elements.counter.moves.innerHTML = 0;
-        puzzle.counter.time = 0;
-        puzzle.elements.counter.timer.innerHTML = "00:00";
-        puzzle.counter.startTime = null;
-        puzzle.counter.endTime = null;
-        puzzle.elements.pzl.classList.add("newpzl");
-        clearTimeout(puzzle.counter.timeoutID);
+        this.elements.tiles = [];
+        this.elements.pzl.innerHTML = "";
+        this.counter.moves = 0;
+        this.elements.counter.moves.innerHTML = 0;
+        this.counter.time = 0;
+        this.elements.counter.timer.innerHTML = "00:00";
+        this.counter.startTime = null;
+        this.counter.endTime = null;
+        this.elements.pzl.classList.add("newpzl");
+        clearTimeout(this.counter.timeoutID);
 
-        puzzle.createTiles();
-        puzzle.placeTiles();
+        this.createTiles();
+        this.placeTiles();
 
         setTimeout(()=>{
-            puzzle.elements.pzl.classList.remove("newpzl");
+            this.elements.pzl.classList.remove("newpzl");
         }, 1100);
+
+        localStorage["time"] = 0;
+        localStorage["moves"] = 0;
+        this.saveGame();
     }
 }
 
@@ -368,11 +456,14 @@ puzzle.init(4);
 
 
 function startTimer() {
-    if(puzzle.counter.startTime == null){
+    if(puzzle.counter.startTime == null && puzzle.counter.time != null && puzzle.counter.time !=0){
+        puzzle.counter.startTime = Date.now() - puzzle.counter.time * 1000;
+    }else if(puzzle.counter.startTime == null){
         puzzle.counter.startTime = Date.now();
     }
 
     t = Math.floor((Date.now() - puzzle.counter.startTime)/1000);
+    localStorage["time"] = t;
     s = t % 60;
     m = Math.floor(t/60)%3600;
     // h = Math.floor(t/3600)%24;
