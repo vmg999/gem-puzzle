@@ -30,7 +30,13 @@ const puzzle = {
     parameters:{
         puzzleSize: 4,
         puzzleBoxSize: 400,
-        isnewgame: true,
+        tileSize: null,
+        isNewGame: true,
+        isEndGame: false,
+        drag: {
+            X: null,
+            Y: null
+        }
     },
     counter:{
         moves: 0,
@@ -77,6 +83,7 @@ const puzzle = {
             const tile = document.createElement("div");
             tile.classList.add("tile");
             tile.classList.add(`tilesize${this.parameters.puzzleSize}`);
+            tile.setAttribute("draggable", "true");
             tile.innerHTML = el;
             tile.left = 0;
             tile.top = 0;
@@ -90,12 +97,13 @@ const puzzle = {
     },
 
     placeTiles(){
-        tileSize = this.parameters.puzzleBoxSize / this.parameters.puzzleSize;
+        this.parameters.tileSize = this.parameters.puzzleBoxSize / this.parameters.puzzleSize;
 
         this.elements.tiles.forEach((el, key)=>{
-            el.top = Math.floor(key / this.parameters.puzzleSize)*tileSize;
-            el.left = (key % this.parameters.puzzleSize)*tileSize;
+            el.top = Math.floor(key / this.parameters.puzzleSize) * this.parameters.tileSize;
+            el.left = (key % this.parameters.puzzleSize) * this.parameters.tileSize;
             el.position = key + 1;
+            el.key = key;
             el.style.left = el.left + "px";
             el.style.top = el.top + "px";
             if(el.empty){
@@ -108,6 +116,13 @@ const puzzle = {
                 this.moveTile(key);
             });
 
+            el.addEventListener("dragstart", (e)=>{
+                this.dragStart(e);
+            });
+            el.addEventListener("dragend", (e)=>{
+                this.dragEnd(e);
+            });
+
             this.elements.pzl.append(el);
         })
     },
@@ -117,9 +132,7 @@ const puzzle = {
         y = this.elements.tiles[k].top;
         p = this.elements.tiles[k].position;
 
-        tileSize = this.parameters.puzzleBoxSize / this.parameters.puzzleSize;
-
-        if((Math.abs(x - this.elements.emptyTile.left) + Math.abs(y - this.elements.emptyTile.top)) == tileSize){
+        if((Math.abs(x - this.elements.emptyTile.left) + Math.abs(y - this.elements.emptyTile.top)) == this.parameters.tileSize){
             this.elements.tiles[k].left = this.elements.emptyTile.left;
             this.elements.tiles[k].style.left = this.elements.emptyTile.left + "px";
             this.elements.tiles[k].top = this.elements.emptyTile.top;
@@ -133,14 +146,39 @@ const puzzle = {
             this.counter.moves++;
             
             this.elements.counter.moves.innerHTML = this.counter.moves; // счет хода
-            if(this.parameters.isnewgame){
+            if(this.parameters.isNewGame){
                 startTimer();
-                this.parameters.isnewgame = false;
+                this.parameters.isNewGame = false;
             }
             this.checkWin();
         }
     },
+    // --------------drag&drop-----------------
+    dragStart(e){
+        k = e.target.key;
+        if((Math.abs(this.elements.tiles[k].left - this.elements.emptyTile.left) + Math.abs(this.elements.tiles[k].top - this.elements.emptyTile.top)) == this.parameters.tileSize){
+            this.parameters.drag.X = e.clientX;
+            this.parameters.drag.Y = e.clientY;
 
+            setTimeout(()=>{
+                this.elements.tiles[k].classList.add("hide");
+            }, 0);
+        }
+    },
+
+    dragEnd(e){
+        let offsetX = Math.abs(this.parameters.drag.X - e.clientX);
+        let offsetY = Math.abs(this.parameters.drag.Y - e.clientY);
+        this.parameters.drag.X = null;
+        this.parameters.drag.Y = null;
+
+        if(offsetX > this.parameters.tileSize/4 || offsetY > this.parameters.tileSize/4 ){
+            this.moveTile(e.target.key);
+        }
+        
+        this.elements.tiles[e.target.key].classList.remove("hide");
+    },
+    // ----------------------------------------
     checkWin(){
         if(this.elements.tiles.every(el=>el.innerHTML == el.position)){
             stopTimer();
@@ -297,7 +335,7 @@ const puzzle = {
     },
 
     newGame(){
-        puzzle.parameters.isnewgame = true;
+        puzzle.parameters.isNewGame = true;
         puzzle.parameters.puzzleSize = +puzzle.elements.menu.newGameSize.value;
         puzzle.parameters.puzzleBoxSize = puzzle.parameters.puzzleSize * 100;// - убрать
         document.styleSheets[0].cssRules[1].style.cssText=`--size: ${puzzle.parameters.puzzleBoxSize}px;`;// - убрать

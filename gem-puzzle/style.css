@@ -38,7 +38,7 @@
   align-self: center;
 }
 .newpzl{
-    transform: rotateY(360deg);
+    transform: rotateY(360deg) rotateX(360deg);
     transition: 1s;
 }
 
@@ -84,10 +84,12 @@
 }
 
 .tile:hover {
-  cursor: pointer;
+  cursor: move;
   background-color: rgb(245, 194, 99);
 }
-
+.hide {
+  display: none;
+}
 /* ----------counter---------- */
 .counter {
   background-color: blanchedalmond;
