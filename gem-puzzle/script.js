@@ -1,6 +1,7 @@
 class gemPuzzle {
     constructor (){
     this.elements = {
+        randomArrow: [],
         main: null,
         puzzle: null,
         tiles: [],
@@ -28,7 +29,12 @@ class gemPuzzle {
             text: null,
             ok: null,
             newGame: null
-        }
+        },
+        table: {
+            modal: null,
+            table: null,
+            ok: null
+        },
     };
     this.parameters = {
         puzzleSize: 4,
@@ -47,6 +53,12 @@ class gemPuzzle {
         startTime: null,
         endTime: null,
         timeoutID: null,
+    };
+    this.results = {
+        date: null,
+        puzzleSize: null,
+        time: null,
+        moves: null,
     }
 }
 
@@ -95,11 +107,12 @@ class gemPuzzle {
 
         this.createMenu();
         this.createModal();
+        this.createTable();
     }
 
     createTiles(){
-        const arr = this.createArr();
-        arr.forEach(el=>{
+        this.elements.randomArrow = this.createArr();
+        this.elements.randomArrow.forEach(el=>{
             const tile = document.createElement("div");
             tile.classList.add("tile");
             tile.classList.add(`tilesize${this.parameters.puzzleSize}`);
@@ -267,7 +280,37 @@ class gemPuzzle {
             stopTimer();
             this.elements.modal.text.innerHTML = `<p>Ура! Вы решили головоломку</p><p>за ${this.elements.counter.timer.innerHTML} и ${this.counter.moves} ход${this.grammaticalCase(this.counter.moves)}</p>`;
             this.showModal();
+            this.parameters.isEndGame = true;
+            this.saveResult();
         }
+    }
+
+    saveResult(){
+        if(localStorage["bestResult"] == null){
+            localStorage.setItem("bestResult", "");
+        }
+        let date = new Date();
+        this.results.date = `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
+        this.results.puzzleSize = `${this.parameters.puzzleSize} x ${this.parameters.puzzleSize}`;
+        this.results.moves = this.counter.moves;
+        this.results.time = this.elements.counter.timer.innerHTML;
+
+        let table = [];
+        if(localStorage["bestResult"] != ""){
+            table = JSON.parse(localStorage["bestResult"]);
+            table.forEach((el, key)=>{
+                if(this.results.moves < el.moves){
+                    table.splice(key, 0, this.results);
+                }
+            });
+            table.push(this.results);
+            if(table.length > 10) table.length = 10;
+            localStorage["bestResult"] = JSON.stringify(table);
+        }else{
+            table.push(this.results);
+            localStorage["bestResult"] = JSON.stringify(table);
+        }
+
     }
     
     createArr(){ // массив с рандомными числами
@@ -364,6 +407,10 @@ class gemPuzzle {
         this.elements.menu.table = document.createElement("button");
         this.elements.menu.table.classList.add("button");
         this.elements.menu.table.textContent = "Таблица лучших результатов";
+        this.elements.menu.table.addEventListener("click", ()=>{
+            this.createResultTable();
+            this.showTable();
+        });
 
         this.elements.menu.finish = document.createElement("button");
         this.elements.menu.finish.classList.add("button");
@@ -390,7 +437,9 @@ class gemPuzzle {
         this.elements.modal.ok = document.createElement("button")
         this.elements.modal.ok.classList.add("modalbutton");
         this.elements.modal.ok.textContent = "Ok";
-        this.elements.modal.ok.addEventListener("click", this.hideModal);
+        this.elements.modal.ok.addEventListener("click", ()=>{
+            this.hideModal();
+        });
 
         this.elements.modal.newGame = document.createElement("button");
         this.elements.modal.newGame.classList.add("modalbutton");
@@ -413,9 +462,62 @@ class gemPuzzle {
         this.elements.modal.modal.classList.toggle("modal-active");
     }
     hideModal(){
-        puzzle.elements.modal.modal.classList.toggle("modal-active");
+        this.elements.modal.modal.classList.toggle("modal-active");
+    }
+    //-------------------таблица результатов----------------------------
+    createTable(){
+        const body = document.querySelector(".body");
+        this.elements.table.modal = document.createElement("div");
+        this.elements.table.modal.classList.add("table");
+
+        this.elements.table.table = document.createElement("table");
+        this.elements.table.table.classList.add("table-item");
+
+        this.elements.table.ok = document.createElement("button")
+        this.elements.table.ok.classList.add("modalbutton");
+        this.elements.table.ok.textContent = "Ok";
+        this.elements.table.ok.addEventListener("click", ()=>{
+            this.hideTable();
+        });
+
+        this.elements.table.modal.append(this.elements.table.table);
+        this.elements.table.modal.append(this.elements.table.ok);
+
+
+        body.append(this.elements.table.modal);
+
     }
 
+    createResultTable(){
+        let table;
+        if(localStorage["bestResult"] != null && localStorage["bestResult"] != ""){
+            table = JSON.parse(localStorage["bestResult"]);
+     
+            let thead = "<thead><th>Дата</th><th>Поле</th><th>Время</th><th>Ходов</th></thead>";
+            let tr='';
+            table.forEach(el=>{
+                tr+="<tr>";
+                tr+=`<td>${el.date}</td>`;
+                tr+=`<td>${el.puzzleSize}</td>`;
+                tr+=`<td>${el.time}</td>`;
+                tr+=`<td>${el.moves}</td>`;
+                tr+="</tr>";
+            })
+            this.elements.table.table.innerHTML += thead;
+            this.elements.table.table.innerHTML += tr;
+        }else{
+            this.elements.table.table.innerHTML = "Результатов еще нет";
+        }
+    }
+
+    showTable(){
+        this.elements.table.modal.classList.toggle("table-active");
+    }
+    hideTable(){
+        this.elements.table.modal.classList.toggle("table-active");
+        this.elements.table.table.innerHTML = "";
+    }
+    //---------------------------------------------------------
     grammaticalCase(n){
         if(n%10 == 1){
             return "";
@@ -458,7 +560,7 @@ class gemPuzzle {
 
 
 const puzzle = new gemPuzzle();
-puzzle.init(4);
+puzzle.init();
 
 
 
