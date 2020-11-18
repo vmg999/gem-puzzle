@@ -23,6 +23,7 @@ class gemPuzzle {
             newGameSize: null,
             table: null,
             finish: null,
+            volume: null,
         },
         modal:{
             modal: null,
@@ -35,6 +36,7 @@ class gemPuzzle {
             table: null,
             ok: null
         },
+        audio: null,
     };
     this.parameters = {
         puzzleSize: 4,
@@ -45,7 +47,8 @@ class gemPuzzle {
         drag: {
             X: null,
             Y: null
-        }
+        },
+        volume: true,
     };
     this.counter = {
         moves: 0,
@@ -150,6 +153,10 @@ class gemPuzzle {
                 this.moveTile(key);
             });
 
+            el.addEventListener("click", ()=>{
+                this.playSound();
+            })
+
             el.addEventListener("dragstart", (e)=>{
                 this.dragStart(e);
             });
@@ -192,6 +199,10 @@ class gemPuzzle {
             el.addEventListener("click", ()=>{
                 this.moveTile(el.key);
             });
+
+            el.addEventListener("click", ()=>{
+                this.playSound();
+            })
 
             el.addEventListener("dragstart", (e)=>{
                 this.dragStart(e);
@@ -416,12 +427,38 @@ class gemPuzzle {
         this.elements.menu.finish.classList.add("button");
         this.elements.menu.finish.textContent = "Завершить автоматически";
 
+        this.elements.menu.volume = document.createElement("button");
+        this.elements.menu.volume.setAttribute("type", "button");
+        this.elements.menu.volume.classList.add("volume");
+        this.elements.menu.volume.innerHTML ='<i class="material-icons">volume_up</i>';
+        this.elements.menu.volume.addEventListener("click", ()=>{
+            this.parameters.volume = !this.parameters.volume;
+            if(this.parameters.volume){
+                this.elements.menu.volume.innerHTML ='<i class="material-icons">volume_up</i>';
+            }else{
+                this.elements.menu.volume.innerHTML = '<i class="material-icons">volume_off</i>';
+            }
+        });
+        this.elements.audio = document.createElement("audio");
+        this.elements.audio.setAttribute("src", "assets/tink.wav");
+
+
         this.elements.menu.menu.append(this.elements.menu.newGame);
         this.elements.menu.menu.append(this.elements.menu.newGameSize);
         this.elements.menu.menu.append(this.elements.menu.table);
         this.elements.menu.menu.append(this.elements.menu.finish);
+        this.elements.menu.menu.append(this.elements.menu.volume);
+        this.elements.menu.menu.append(this.elements.audio);
 
         this.elements.main.append(this.elements.menu.menu);
+    }
+
+    playSound(){
+        if(this.parameters.volume){
+        let audio = document.querySelector("audio");
+        audio.currentTime = 0;
+        audio.play();
+        }
     }
     //------------модальное окно-------------------------
     createModal(){

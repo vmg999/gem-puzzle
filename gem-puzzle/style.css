@@ -187,7 +187,7 @@
   cursor: pointer;
   transform: scale(1.05);
 }
-
+/* -------------table------------ */
 .table{
   width: 40vw;
   height: 50vh;
@@ -216,4 +216,15 @@ th, td{
   width: 90%;
   border: solid 1px black;
   border-collapse: collapse;
+}
+
+.volume{
+  height: 40px;
+  width: 40px;
+  border-radius: 20px;
+  outline: none;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  vertical-align: top;
 }
