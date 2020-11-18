@@ -309,12 +309,15 @@ class gemPuzzle {
         let table = [];
         if(localStorage["bestResult"] != ""){
             table = JSON.parse(localStorage["bestResult"]);
-            table.forEach((el, key)=>{
-                if(this.results.moves < el.moves){
-                    table.splice(key, 0, this.results);
+            for(let i=0;i<table.length;i++){
+                if(this.results.moves < table[i].moves){
+                    table.splice(i, 0, this.results);
+                    break;
                 }
-            });
-            table.push(this.results);
+            }
+            if(this.results.moves > table[table.length - 1].moves){
+                table.push(this.results);
+            }
             if(table.length > 10) table.length = 10;
             localStorage["bestResult"] = JSON.stringify(table);
         }else{
