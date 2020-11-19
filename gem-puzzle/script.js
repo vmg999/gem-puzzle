@@ -158,11 +158,8 @@ class gemPuzzle {
             }
             el.addEventListener("click", ()=>{
                 this.moveTile(key);
-            });
-
-            el.addEventListener("click", ()=>{
                 this.playSound();
-            })
+            });
 
             el.addEventListener("dragstart", (e)=>{
                 this.dragStart(e);
@@ -205,11 +202,8 @@ class gemPuzzle {
 
             el.addEventListener("click", ()=>{
                 this.moveTile(el.key);
-            });
-
-            el.addEventListener("click", ()=>{
                 this.playSound();
-            })
+            });
 
             el.addEventListener("dragstart", (e)=>{
                 this.dragStart(e);
@@ -680,10 +674,10 @@ function startTimer() {
         puzzle.counter.startTime = Date.now();
     }
 
-    t = Math.floor((Date.now() - puzzle.counter.startTime)/1000);
+    let t = Math.floor((Date.now() - puzzle.counter.startTime)/1000);
     localStorage["time"] = t;
-    s = t % 60;
-    m = Math.floor(t/60)%3600;
+    let s = t % 60;
+    let m = Math.floor(t/60)%3600;
     // h = Math.floor(t/3600)%24;
     puzzle.elements.counter.timer.textContent = `${addZero(m)}:${addZero(s)}`;
 
