@@ -20,10 +20,12 @@ class gemPuzzle {
         menu:{
             menu: null,
             newGame: null,
+            newGamePic: null,
             newGameSize: null,
             table: null,
             finish: null,
             volume: null,
+            hideDig: null,
         },
         modal:{
             modal: null,
@@ -48,7 +50,7 @@ class gemPuzzle {
             X: null,
             Y: null
         },
-        volume: true,
+        volume: false,
     };
     this.counter = {
         moves: 0,
@@ -62,6 +64,11 @@ class gemPuzzle {
         puzzleSize: null,
         time: null,
         moves: null,
+    }
+    this.picture = {
+        link: null,
+        isPicture: false,
+        digits: true
     }
 }
 
@@ -216,6 +223,25 @@ class gemPuzzle {
 
     }
 
+    addPicture(){
+        this.picture.isPicture = true;
+        this.picture.link = `assets/img/box/${(Math.floor(Math.random()*1000))%150}.jpg`;
+
+        this.elements.tiles.forEach(el=>{
+            el.classList.add("picDigits");
+            el.style.background = `url("${this.picture.link}")`;
+            el.style.backgroundSize = `${this.parameters.puzzleSize*100}%`;
+
+            let offsetX = ((el.numValue % this.parameters.puzzleSize) - 1)*(-100);
+            let offsetY = Math.floor((el.numValue - 1)/this.parameters.puzzleSize)*(-100);
+
+            el.style.backgroundPosition = `${offsetX}% ${offsetY}%`;
+           
+
+        })
+        
+    }
+
     moveTile(k){
         let x = this.elements.tiles[k].left;
         let y = this.elements.tiles[k].top;
@@ -293,6 +319,11 @@ class gemPuzzle {
             this.showModal();
             this.parameters.isEndGame = true;
             this.saveResult();
+
+            if(this.picture.isPicture){
+                this.elements.puzzle.style.background = `url("${this.picture.link}")`;
+                this.elements.puzzle.style.backgroundSize = "100%";
+            }
         }
     }
 
@@ -406,6 +437,14 @@ class gemPuzzle {
             this.newGame();
         });
 
+        this.elements.menu.newGamePic = document.createElement("button");
+        this.elements.menu.newGamePic.classList.add("button");
+        this.elements.menu.newGamePic.textContent = "Новый пазл с картинкой";
+        this.elements.menu.newGamePic.addEventListener('click', ()=>{
+            this.newGame();
+            this.addPicture();
+        });
+
         this.elements.menu.newGameSize = document.createElement("select");
         this.elements.menu.newGameSize.setAttribute("name", "select");
         this.elements.menu.newGameSize.classList.add("input");
@@ -433,7 +472,7 @@ class gemPuzzle {
         this.elements.menu.volume = document.createElement("button");
         this.elements.menu.volume.setAttribute("type", "button");
         this.elements.menu.volume.classList.add("volume");
-        this.elements.menu.volume.innerHTML ='<i class="material-icons">volume_up</i>';
+        this.elements.menu.volume.innerHTML ='<i class="material-icons">volume_off</i>';
         this.elements.menu.volume.addEventListener("click", ()=>{
             this.parameters.volume = !this.parameters.volume;
             if(this.parameters.volume){
@@ -445,12 +484,37 @@ class gemPuzzle {
         this.elements.audio = document.createElement("audio");
         this.elements.audio.setAttribute("src", "assets/tink.wav");
 
+        this.elements.menu.hideDig = document.createElement("button");
+        this.elements.menu.hideDig.setAttribute("type", "button");
+        this.elements.menu.hideDig.classList.add("volume");
+        this.elements.menu.hideDig.innerHTML ='<i class="material-icons">visibility</i>';
+        this.elements.menu.hideDig.addEventListener("click", ()=>{
+            if(this.picture.isPicture){
+                this.picture.digits = !this.picture.digits;
+                this.elements.tiles.forEach(el=>{
+                    el.classList.toggle("hideDigigts");
+                });
+                
+                if(this.picture.digits){
+                    this.elements.menu.hideDig.innerHTML ='<i class="material-icons">visibility</i>';
+                }else{
+                    this.elements.menu.hideDig.innerHTML ='<i class="material-icons">visibility_off</i>';
+                }
+        }
+        });
+
+        let settings = document.createElement("div");
+        settings.classList.add("settings");
+        settings.append(this.elements.menu.hideDig);
+        settings.append(this.elements.menu.volume);
+
 
         this.elements.menu.menu.append(this.elements.menu.newGame);
+        this.elements.menu.menu.append(this.elements.menu.newGamePic);
         this.elements.menu.menu.append(this.elements.menu.newGameSize);
         this.elements.menu.menu.append(this.elements.menu.table);
         this.elements.menu.menu.append(this.elements.menu.finish);
-        this.elements.menu.menu.append(this.elements.menu.volume);
+        this.elements.menu.menu.append(settings);
         this.elements.menu.menu.append(this.elements.audio);
 
         this.elements.main.append(this.elements.menu.menu);
@@ -595,6 +659,10 @@ class gemPuzzle {
         localStorage["time"] = 0;
         localStorage["moves"] = 0;
         this.saveGame();
+        if(this.picture.isPicture){
+            this.picture.isPicture = false;
+            this.elements.puzzle.style.background = "";
+        }
     }
 }
 

@@ -57,6 +57,12 @@
 
   transition: all 0.2s;
 }
+.picDigits{
+  color: rgba(255,255,255, 0.8);
+}
+.hideDigigts{
+  color: transparent;
+}
 
 .tilesize3 {
   width: calc(var(--size) / 3);
@@ -135,6 +141,13 @@
   width: 10rem;
   min-height: 2rem;
   border-radius: 3px;
+}
+
+.settings{
+  width: 12rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
 }
 
 /* --------------modal---------------- */
