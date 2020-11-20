@@ -117,6 +117,7 @@ class gemPuzzle {
             localStorage.setItem('emptyTile', '');
             localStorage.setItem('moves', '');
             localStorage.setItem('time', '');
+            localStorage.setItem('picture', '');
             this.createTiles();
             this.placeTiles();
             this.saveGame();
@@ -223,11 +224,16 @@ class gemPuzzle {
 
             this.elements.puzzle.append(el);
         });
+        if (this.picture.isPicture){
+            this.addPicture();
+        }
     }
 
     addPicture(){
         this.picture.isPicture = true;
-        this.picture.link = `assets/img/box/${(Math.floor(Math.random() * 1000)) % 150}.jpg`;
+        if (this.parameters.isNewGame){
+            this.picture.link = `assets/img/box/${(Math.floor(Math.random() * 1000)) % 150}.jpg`;
+        }
 
         this.elements.tiles.forEach((el) => {
             el.classList.add('picDigits');
@@ -239,6 +245,7 @@ class gemPuzzle {
 
             el.style.backgroundPosition = `${offsetX}% ${offsetY}%`;
         });
+        // localStorage.picture = this.picture.link;
     }
 
     moveTile(k){
@@ -276,6 +283,9 @@ class gemPuzzle {
         localStorage.puzzle = JSON.stringify(this.elements.tiles);
         localStorage.emptyTile = JSON.stringify(this.elements.emptyTile);
         localStorage.moves = this.counter.moves;
+        if (this.picture.isPicture){
+            localStorage.picture = this.picture.link;
+        }
     }
 
     getSavedGame(){
@@ -284,6 +294,12 @@ class gemPuzzle {
         this.elements.savedEmptyTile = JSON.parse(localStorage.emptyTile);
         this.counter.moves = localStorage.moves;
         this.counter.time = localStorage.time;
+        if (localStorage.picture != ''){
+            this.picture.link = localStorage.picture;
+            this.picture.isPicture = true;
+            localStorage.picture = '';
+        }
+        this.parameters.isNewGame = false;
     }
 
     // --------------drag&drop-----------------
@@ -656,11 +672,12 @@ class gemPuzzle {
 
         localStorage.time = 0;
         localStorage.moves = 0;
-        this.saveGame();
+
         if (this.picture.isPicture){
             this.picture.isPicture = false;
             this.elements.puzzle.style.background = '';
         }
+        this.saveGame();
     }
 }
 
