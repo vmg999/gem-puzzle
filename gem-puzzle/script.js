@@ -55,7 +55,7 @@ class gemPuzzle {
     };
     this.parameters = {
         puzzleSize: 4,
-        puzzleBoxSize: 450,
+        puzzleBoxSize: 400,
         tileSize: null,
         isNewGame: true,
         isEndGame: false,
@@ -246,7 +246,6 @@ class gemPuzzle {
 
             el.style.backgroundPosition = `${offsetX}% ${offsetY}%`;
         });
-        // localStorage.picture = this.picture.link;
     }
 
     moveTile(k){
