@@ -253,7 +253,7 @@ class gemPuzzle {
         const y = this.elements.tiles[k].top;
         const p = this.elements.tiles[k].position;
 
-        if ((Math.abs(x - this.elements.emptyTile.left) + Math.abs(y - this.elements.emptyTile.top)) == this.parameters.tileSize){
+        if (Math.floor(Math.abs(x - this.elements.emptyTile.left) + Math.abs(y - this.elements.emptyTile.top)) == Math.floor(this.parameters.tileSize)){
             this.elements.tiles[k].left = this.elements.emptyTile.left;
             this.elements.tiles[k].style.left = this.elements.emptyTile.left + 'px';
             this.elements.tiles[k].top = this.elements.emptyTile.top;
