@@ -59,6 +59,7 @@ class gemPuzzle {
         tileSize: null,
         isNewGame: true,
         isEndGame: false,
+        retoredGame: false,
         drag: {
             X: null,
             Y: null,
@@ -267,7 +268,7 @@ class gemPuzzle {
             this.counter.moves++;
 
             this.elements.counter.moves.textContent = this.counter.moves; // счет хода
-            if (this.parameters.isNewGame){
+            if (this.parameters.isNewGame || this.parameters.retoredGame){
                 startTimer();
                 this.parameters.isNewGame = false;
             }
@@ -300,6 +301,7 @@ class gemPuzzle {
             localStorage.picture = '';
         }
         this.parameters.isNewGame = false;
+        this.parameters.retoredGame = true;
     }
 
     // --------------drag&drop-----------------
