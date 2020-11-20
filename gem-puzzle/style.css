@@ -4,7 +4,7 @@
 }
 
 :root {
-  --size: 400px;
+  --size: 450px;
 }
 
 .body {
@@ -75,18 +75,22 @@
 .tilesize5 {
   width: calc(var(--size) / 5);
   height: calc(var(--size) / 5);
+  font-size: 2rem;
 }
 .tilesize6 {
   width: calc(var(--size) / 6);
   height: calc(var(--size) / 6);
+  font-size: 1.8rem;
 }
 .tilesize7 {
   width: calc(var(--size) / 7);
   height: calc(var(--size) / 7);
+  font-size: 1.5rem;
 }
 .tilesize8 {
   width: calc(var(--size) / 8);
   height: calc(var(--size) / 8);
+  font-size: 1.2rem;
 }
 
 .tile:hover {
@@ -99,8 +103,6 @@
 /* ----------counter---------- */
 .counter {
   background-color: blanchedalmond;
-  width: 200px;
-  height: 100px;
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
@@ -108,8 +110,9 @@
 }
 .timer, .moves {
   background-color: #fff;
-  width: 160px;
+  width: 140px;
   height: 40px;
+  margin: 5px;
   font-size: 2rem;
   text-align: center;
 }
@@ -130,11 +133,12 @@
   width: 12rem;
   min-height: 3rem;
   border-radius: 3px;
+  background-color: rgb(245, 230, 201);
 }
 
 .button:hover {
   cursor: pointer;
-  transform: scale(1.05);
+  background-color:  rgb(204, 192, 167);
 }
 .input {
   font-size: 1rem;
@@ -194,11 +198,12 @@
   width: 8rem;
   min-height: 2rem;
   border-radius: 3px;
+  background-color: rgb(245, 230, 201);
 }
 
 .modalbutton:hover {
   cursor: pointer;
-  transform: scale(1.05);
+  background-color:  rgb(204, 192, 167);
 }
 /* -------------table------------ */
 .table{
@@ -240,4 +245,8 @@ th, td{
   align-items: center;
   justify-content: center;
   vertical-align: top;
+  background-color: rgb(245, 230, 201);
+}
+.volume:hover{
+  background-color:  rgb(204, 192, 167);
 }

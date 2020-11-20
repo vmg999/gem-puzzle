@@ -55,7 +55,7 @@ class gemPuzzle {
     };
     this.parameters = {
         puzzleSize: 4,
-        puzzleBoxSize: 400,
+        puzzleBoxSize: 450,
         tileSize: null,
         isNewGame: true,
         isEndGame: false,
@@ -110,8 +110,6 @@ class gemPuzzle {
                 this.parameters.puzzleSize = puzzleSize;
             }
         }
-        this.parameters.puzzleBoxSize = this.parameters.puzzleSize * 100; // - убрать
-        document.styleSheets[0].cssRules[1].style.cssText = `--size: ${this.parameters.puzzleBoxSize}px;`;// - убрать
 
         if (localStorage.puzzle == null){
             localStorage.setItem('puzzleSize', '');
@@ -637,8 +635,6 @@ class gemPuzzle {
     newGame(){
         this.parameters.isNewGame = true;
         this.parameters.puzzleSize = +this.elements.menu.newGameSize.value;
-        this.parameters.puzzleBoxSize = this.parameters.puzzleSize * 100;// - убрать
-        document.styleSheets[0].cssRules[1].style.cssText = `--size: ${this.parameters.puzzleBoxSize}px;`;// - убрать
         stopTimer();
         this.elements.tiles = [];
         this.elements.puzzle.innerHTML = '';
@@ -682,7 +678,6 @@ function startTimer() {
     localStorage.time = t;
     const s = t % 60;
     const m = Math.floor(t / 60) % 3600;
-    // h = Math.floor(t/3600)%24;
     puzzle.elements.counter.timer.textContent = `${addZero(m)}:${addZero(s)}`;
 
     if (puzzle.counter.endTime == null){
