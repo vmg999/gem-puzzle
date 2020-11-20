@@ -14,7 +14,7 @@
 class gemPuzzle {
     constructor() {
     this.elements = {
-        randomArrow: [],
+        randomArray: [],
         main: null,
         puzzle: null,
         tiles: [],
@@ -133,8 +133,8 @@ class gemPuzzle {
     }
 
     createTiles(){
-        this.elements.randomArrow = this.createArr();
-        this.elements.randomArrow.forEach((el) => {
+        this.elements.randomArray = this.createArr();
+        this.elements.randomArray.forEach((el) => {
             const tile = document.createElement('div');
             tile.classList.add('tile');
             tile.classList.add(`tilesize${this.parameters.puzzleSize}`);
