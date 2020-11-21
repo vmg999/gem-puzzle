@@ -172,7 +172,6 @@ class gemPuzzle {
             }
             el.addEventListener('click', () => {
                 this.moveTile(key);
-                this.playSound();
             });
 
             el.addEventListener('dragstart', (e) => {
@@ -216,7 +215,6 @@ class gemPuzzle {
 
             el.addEventListener('click', () => {
                 this.moveTile(el.key);
-                this.playSound();
             });
 
             el.addEventListener('dragstart', (e) => {
@@ -282,7 +280,7 @@ class gemPuzzle {
                 this.parameters.isNewGame = false;
             }
             this.checkWin();
-
+            this.playSound();
             this.saveGame();
         }
     }
