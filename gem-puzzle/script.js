@@ -1,4 +1,5 @@
 /* eslint-disable linebreak-style */
+/* eslint-disable import/extensions */
 /* eslint-disable no-lonely-if */
 /* eslint-disable new-cap */
 /* eslint-disable no-else-return */
@@ -11,6 +12,8 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable space-before-blocks */
 /* eslint-disable indent */
+import { countWay } from './autoresolve.js';
+
 class gemPuzzle {
     constructor() {
     this.elements = {
@@ -152,11 +155,11 @@ class gemPuzzle {
     }
 
     placeTiles(){
-        this.parameters.tileSize = this.parameters.puzzleBoxSize / this.parameters.puzzleSize;
+        this.parameters.tileSize = Math.floor(this.parameters.puzzleBoxSize / this.parameters.puzzleSize);
 
         this.elements.tiles.forEach((el, key) => {
             el.top = Math.floor(key / this.parameters.puzzleSize) * this.parameters.tileSize;
-            el.left = (key % this.parameters.puzzleSize) * this.parameters.tileSize;
+            el.left = Math.floor(key % this.parameters.puzzleSize) * this.parameters.tileSize;
             el.position = key + 1;
             el.key = key;
             el.style.left = el.left + 'px';
@@ -205,7 +208,7 @@ class gemPuzzle {
             this.elements.tiles.push(tile);
         });
 
-        this.parameters.tileSize = this.parameters.puzzleBoxSize / this.parameters.puzzleSize;
+        this.parameters.tileSize = Math.floor(this.parameters.puzzleBoxSize / this.parameters.puzzleSize);
 
         this.elements.tiles.forEach((el) => {
             el.style.left = el.left + 'px';
@@ -249,6 +252,13 @@ class gemPuzzle {
     }
 
     moveTile(k){
+        if (this.elements.tiles[k].numValue == 0){
+            this.elements.tiles.forEach((el, key) => {
+                if (k == el.position - 1){
+                    k = key;
+                }
+            });
+        }
         const x = this.elements.tiles[k].left;
         const y = this.elements.tiles[k].top;
         const p = this.elements.tiles[k].position;
@@ -483,6 +493,15 @@ class gemPuzzle {
         this.elements.menu.finish = document.createElement('button');
         this.elements.menu.finish.classList.add('button');
         this.elements.menu.finish.textContent = 'Завершить автоматически';
+        this.elements.menu.finish.addEventListener('click', () => {
+            const moves = countWay(this.elements.randomArray);
+            let i = 0;
+            const moving = setInterval(() => {
+                this.moveTile(moves[i]);
+                i++;
+            }, 20);
+            setTimeout(() => { clearInterval(moving); }, 600000);
+        });
 
         this.elements.menu.volume = document.createElement('button');
         this.elements.menu.volume.setAttribute('type', 'button');

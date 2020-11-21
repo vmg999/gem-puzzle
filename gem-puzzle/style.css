@@ -55,7 +55,7 @@
   left: 0;
   top: 0;
 
-  transition: all 0.2s;
+  transition: all 0.1s;
 }
 .picDigits{
   color: rgba(255,255,255, 0.8);
