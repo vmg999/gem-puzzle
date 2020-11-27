@@ -191,6 +191,7 @@ export default function countWay(randomArray) {
       }
 
       if (countMisplacedItems(min[2]) === 0) {
+        closeList.push(min);
         break;
       }
     }

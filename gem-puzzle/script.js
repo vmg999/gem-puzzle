@@ -213,7 +213,7 @@ class GemPuzzle {
 
   addPicture() {
     if (this.parameters.isNewGame) {
-      this.picture.link = `assets/img/box/${(Math.floor(Math.random() * SECOND)) % 150}.jpg`;
+      this.picture.link = `assets/img/box/${(Math.ceil(Math.random() * SECOND)) % 150}.jpg`;
     }
 
     this.elements.tiles.forEach((element) => {
@@ -238,6 +238,7 @@ class GemPuzzle {
         }
       });
     }
+    // console.log(k);
     const x = this.elements.tiles[k].left;
     const y = this.elements.tiles[k].top;
     const p = this.elements.tiles[k].position;
@@ -265,6 +266,16 @@ class GemPuzzle {
       this.playSound();
       this.saveGame();
     }
+  }
+
+  getTileNumByPosition(p) {
+    let k = 0;
+    this.elements.tiles.forEach((el, key) => {
+      if (+el.position === p) {
+        k = key;
+      }
+    });
+    return k;
   }
 
   saveGame() {
@@ -464,15 +475,9 @@ class GemPuzzle {
 
     menu.finish = document.createElement('button');
     menu.finish.classList.add('button');
-    menu.finish.textContent = 'Завершить автоматически';
+    menu.finish.textContent = 'Завершить автоматически (3x3)';
     menu.finish.addEventListener('click', () => {
-      const moves = countWay(this.elements.randomArray);
-      let i = 0;
-      const moving = setInterval(() => {
-        this.moveTile(moves[i]);
-        i += 1;
-      }, 20);
-      setTimeout(() => { clearInterval(moving); }, 600000);
+      this.autoResolve();
     });
 
     menu.volume = document.createElement('button');
@@ -514,6 +519,18 @@ class GemPuzzle {
       const audio = document.querySelector('audio');
       audio.currentTime = 0;
       audio.play();
+    }
+  }
+
+  autoResolve() {
+    if (this.parameters.puzzleSize === 3) {
+      const moves = countWay(this.elements.randomArray);
+      for (let i = 0; i < moves.length; i += 1) {
+        setTimeout(() => {
+          const key = this.getTileNumByPosition(moves[i] + 1);
+          this.moveTile(key);
+        }, (20 + i * 10));
+      }
     }
   }
 
