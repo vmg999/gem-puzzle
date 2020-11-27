@@ -1,6 +1,7 @@
 import countWay from './autoresolve';
-
-const SECOND = 1000;
+import {
+  SECOND, mix, checkEven, addZero, grammaticalCase,
+} from './functions';
 
 class GemPuzzle {
   constructor() {
@@ -257,7 +258,7 @@ class GemPuzzle {
 
       this.elements.counter.moves.textContent = this.counter.moves;
       if (this.parameters.isNewGame || this.parameters.retoredGame) {
-        startTimer();
+        this.startTimer();
         this.parameters.isNewGame = false;
       }
       this.checkWin();
@@ -329,7 +330,7 @@ class GemPuzzle {
 
   checkWin() {
     if (this.elements.tiles.every((el) => +el.innerHTML === el.position)) {
-      stopTimer();
+      this.stopTimer();
       this.createWinMessage();
       this.showModal();
       this.parameters.isEndGame = true;
@@ -659,7 +660,7 @@ class GemPuzzle {
   newGame() {
     this.parameters.isNewGame = true;
     this.parameters.puzzleSize = +this.elements.menu.newGameSize.value;
-    stopTimer();
+    this.stopTimer();
     this.elements.tiles = [];
     this.elements.puzzle.innerHTML = '';
     this.counter.moves = 0;
@@ -687,74 +688,31 @@ class GemPuzzle {
     }
     this.saveGame();
   }
+
+  startTimer() {
+    if (this.counter.startTime == null
+            && this.counter.time != null
+            && this.counter.time !== 0) {
+      this.counter.startTime = Date.now() - this.counter.time * SECOND;
+    } else if (this.counter.startTime == null) {
+      this.counter.startTime = Date.now();
+    }
+
+    const time = Math.floor((Date.now() - this.counter.startTime) / SECOND);
+    localStorage.time = time;
+    const seconds = time % 60;
+    const minutes = Math.floor(time / 60) % 3600;
+    this.elements.counter.timer.textContent = `${addZero(minutes)}:${addZero(seconds)}`;
+
+    if (this.counter.endTime == null) {
+      this.counter.timeoutID = setTimeout(() => { this.startTimer(); }, SECOND);
+    }
+  }
+
+  stopTimer() {
+    this.counter.endTime = Date.now();
+  }
 }
 
 const puzzle = new GemPuzzle();
 puzzle.init();
-
-function mix(arr) {
-  let array = [];
-  [...array] = [...arr];
-  array = array.sort(() => Math.random() - 0.5);
-  return array;
-}
-
-function checkEven(array, size) {
-  let sum = 0;
-  const l = array.length;
-  for (let i = 0; i < l; i += 1) {
-    let k = 0;
-    for (let j = 0; j < l; j += 1) {
-      if (i < j && array[i] > array[j] && array[j] !== 0) {
-        k += 1;
-      }
-    }
-    sum += k;
-  }
-
-  if (size % 2 === 0) {
-    sum += Math.ceil((array.indexOf(0) + 1) / size);
-  }
-
-  if (sum % 2 === 0) {
-    return true;
-  }
-  return false;
-}
-
-function addZero(n) {
-  return (parseInt(n, 10) < 10 ? '0' : '') + n;
-}
-
-function grammaticalCase(n) {
-  if (n % 10 === 1) {
-    return '';
-  } if (n % 10 > 1 && n % 10 < 5) {
-    return 'a';
-  }
-  return 'ов';
-}
-
-function startTimer() {
-  if (puzzle.counter.startTime == null
-        && puzzle.counter.time != null
-        && puzzle.counter.time !== 0) {
-    puzzle.counter.startTime = Date.now() - puzzle.counter.time * SECOND;
-  } else if (puzzle.counter.startTime == null) {
-    puzzle.counter.startTime = Date.now();
-  }
-
-  const time = Math.floor((Date.now() - puzzle.counter.startTime) / SECOND);
-  localStorage.time = time;
-  const seconds = time % 60;
-  const minutes = Math.floor(time / 60) % 3600;
-  puzzle.elements.counter.timer.textContent = `${addZero(minutes)}:${addZero(seconds)}`;
-
-  if (puzzle.counter.endTime == null) {
-    puzzle.counter.timeoutID = setTimeout(startTimer, SECOND);
-  }
-}
-
-function stopTimer() {
-  puzzle.counter.endTime = Date.now();
-}
