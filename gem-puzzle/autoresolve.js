@@ -1,7 +1,7 @@
 export default function countWay(randomArray) {
   const closeList = [];
 
-  function countMisplacedItems(array) { // кол-во элементов не на правильной позиции
+  function countMisplacedItems(array) { // number of misplaced elements
     let sum = 0;
     for (let i = 0; i < array.length - 1; i += 1) {
       if (array[i] !== i + 1) {
@@ -25,7 +25,7 @@ export default function countWay(randomArray) {
     closeList.push(tmp);
   }
 
-  function reversItems(array, i1, i2) { // поменять местами элементы массива
+  function reversItems(array, i1, i2) { // reverse position of two elements of array
     const a = array[i1];
     const b = array[i2];
     array.splice(i1, 1, b);
@@ -33,7 +33,7 @@ export default function countWay(randomArray) {
     return array;
   }
 
-  function getZeroNeigbors(array) { // получить массив индексов соседей нуля
+  function getZeroNeigbors(array) { // get zero neigbors index array
     const { length } = array;
     const size = Math.sqrt(length);
     const zero = array.indexOf(0);
@@ -101,7 +101,7 @@ export default function countWay(randomArray) {
     let F = 0;
 
     for (G = 1; G < 20000; G += 1) {
-      const tmpNodes = getChildNodes(closeList[closeList.length - 1][2]); // дочерние узлы
+      const tmpNodes = getChildNodes(closeList[closeList.length - 1][2]); // child nodes
 
       tmpNodes.forEach((el) => {
         el.push(G);
@@ -111,29 +111,28 @@ export default function countWay(randomArray) {
         el.push(F);
       });
 
-      tmpNodes.forEach((el, key) => { // исключить обратный ход
+      tmpNodes.forEach((el, key) => { // decline reverse move
         if (el[1] === closeList[closeList.length - 1][0]) {
           tmpNodes.splice(key, 1);
         }
       });
 
-      tmpNodes.forEach((el, key) => { // исключить повторяющиеся узлы
+      tmpNodes.forEach((el, key) => { // decline repeated nodes
         closeList.forEach((cEl) => {
           if (compareArrays(el[2], cEl[2]) && tmpNodes.length > 1) {
             tmpNodes.splice(key, 1);
-            // closeList.splice(c_key);
           }
         });
       });
 
-      let [...min] = [...tmpNodes[0]]; // найти минимальное F
+      let [...min] = [...tmpNodes[0]]; // find minimum F
       tmpNodes.forEach((el) => {
         if (el[5] < min[5]) {
           [...min] = [...el];
         }
       });
 
-      const tmpSameWeight = []; // узлы с одинаковыми F
+      const tmpSameWeight = []; // nodes with the same F
       tmpNodes.forEach((el, key) => {
         tmpNodes.forEach((iEl, iKey) => {
           if (key !== iKey) {
@@ -146,7 +145,7 @@ export default function countWay(randomArray) {
         });
       });
 
-      if (tmpSameWeight.length === 0) { // проверить субузлы
+      if (tmpSameWeight.length === 0) { // check F of subnodes
         closeList.push(min);
       } else {
         const tmpSubNodes = [];
@@ -177,15 +176,6 @@ export default function countWay(randomArray) {
             min = el;
           }
         });
-
-        // tmpSubNodes.forEach((el, key)=>{ // исключить повторяющиеся узлы
-        //     closeList.forEach((c_el, c_key)=>{
-        //         if(compareArrays(el[2], c_el[2]) && tmpSubNodes.length >1){
-        //             tmpSubNodes.splice(key, 1);
-        //             // closeList.splice(c_key);
-        //         }
-        //     });
-        // });
 
         closeList.push(min);
       }

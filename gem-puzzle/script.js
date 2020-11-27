@@ -238,7 +238,6 @@ class GemPuzzle {
         }
       });
     }
-    // console.log(k);
     const x = this.elements.tiles[k].left;
     const y = this.elements.tiles[k].top;
     const p = this.elements.tiles[k].position;
