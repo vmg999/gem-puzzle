@@ -1,7 +1,7 @@
-import countWay from './autoresolve';
+import countWay from './autoresolve.js';
 import {
   SECOND, mix, checkEven, addZero, grammaticalCase,
-} from './functions';
+} from './functions.js';
 
 class GemPuzzle {
   constructor() {
