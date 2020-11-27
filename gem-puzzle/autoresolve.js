@@ -8,7 +8,9 @@ export default function countWay(randomArray) {
         sum += 1;
       }
     }
-    if (array[array.length - 1] !== 0) sum += 1;
+    if (array[array.length - 1] !== 0) {
+      sum += 1;
+    }
     return sum;
   }
 
@@ -38,13 +40,21 @@ export default function countWay(randomArray) {
     const neigbors = [];
 
     const top = zero - size;
-    if (top >= 0) neigbors.push(top);
+    if (top >= 0) {
+      neigbors.push(top);
+    }
     const bottom = zero + size;
-    if (bottom <= length - 1) neigbors.push(bottom);
+    if (bottom <= length - 1) {
+      neigbors.push(bottom);
+    }
     const left = zero - 1;
-    if ((zero + 1) % size !== 1) neigbors.push(left);
+    if ((zero + 1) % size !== 1) {
+      neigbors.push(left);
+    }
     const right = zero + 1;
-    if ((zero + 1) % size !== 0) neigbors.push(right);
+    if ((zero + 1) % size !== 0) {
+      neigbors.push(right);
+    }
 
     return neigbors;
   }
@@ -67,17 +77,20 @@ export default function countWay(randomArray) {
   }
 
   function compareArrays(array1, array2) {
-    if (array1.length === array2.length) {
-      let tmp = 0;
-      for (let i = 0; i < array1.length; i += 1) {
-        if (array1[i] !== array2[i]) tmp += 1;
-      }
-
-      if (tmp === 0) {
-        return true;
-      }
+    if (array1.length !== array2.length) {
       return false;
     }
+    let tmp = 0;
+    for (let i = 0; i < array1.length; i += 1) {
+      if (array1[i] !== array2[i]) {
+        tmp += 1;
+      }
+    }
+
+    if (tmp === 0) {
+      return true;
+    }
+
     return false;
   }
 
@@ -148,7 +161,6 @@ export default function countWay(randomArray) {
           });
           tmpSubNodes.push(tmp);
         });
-        // console.log(tmpSameWeight);
 
         const tmpminw = tmpSubNodes[0][0][5];
         let k = 0;

@@ -10,22 +10,41 @@
 .body {
   background: url("assets/img/fon4.jpg");
   background-size: cover;
-  height: 100vh;
+  min-height: 100vh;
   width: 99vw;
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: row;
+}
+
+@media screen and (min-width: 1200px){
+  .main{
+    width: 75vw;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+  }
+}
+@media screen and  (min-width: 900px) and (max-width: 1199px){
+  .main{
+    width: 90vw;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+  }
+}
+@media screen and  (max-width: 899px){
+  .main{
+    width: 95vw;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+  }
 }
 .main {
-  width: 75vw;
   min-height: 500px;
   background-color: rgba(98, 132, 148, 0.5);
-
   display: flex;
-  flex-direction: row;
-  justify-content: space-evenly;
-  align-items: center;
 }
 
 .puzzle {
@@ -60,7 +79,7 @@
 .picDigits{
   color: rgba(255,255,255, 0.8);
 }
-.hideDigigts{
+.hideDigits{
   color: transparent;
 }
 
@@ -102,6 +121,8 @@
 }
 /* ----------counter---------- */
 .counter {
+  width: 150px;
+  margin: 1rem;
   background-color: blanchedalmond;
   display: flex;
   flex-direction: column;
@@ -119,9 +140,9 @@
 
 /* ----------menu------------ */
 .menu {
-  width: 300px;
+  max-width: 200px;
   height: 400px;
-
+  margin: 1rem;
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
@@ -130,7 +151,7 @@
 
 .button {
   font-size: 1.1rem;
-  width: 12rem;
+  width: 100%;
   min-height: 3rem;
   border-radius: 3px;
   background-color: rgb(245, 230, 201);

@@ -1,5 +1,7 @@
 import countWay from './autoresolve';
 
+const SECOND = 1000;
+
 class GemPuzzle {
   constructor() {
     this.elements = {
@@ -84,28 +86,13 @@ class GemPuzzle {
     this.elements.puzzle.classList.add('puzzle');
 
     body.append(this.elements.main);
-    if (localStorage.moves != null) this.counter.moves = localStorage.moves;
+    if (localStorage.moves != null) { this.counter.moves = +localStorage.moves; }
     this.createCounter();
     this.elements.main.append(this.elements.puzzle);
 
-    // ----------размер поля-----------
-    if (localStorage.puzzleSize != null && localStorage.puzzleSize !== 0) {
-      this.parameters.puzzleSize = localStorage.puzzleSize;
-    } else if (puzzleSize < 3) {
-      this.parameters.puzzleSize = 3;
-    } else if (puzzleSize > 8) {
-      this.parameters.puzzleSize = 8;
-    } else {
-      this.parameters.puzzleSize = puzzleSize;
-    }
+    this.setPuzzleSize(puzzleSize);
 
     if (localStorage.puzzle == null) {
-      localStorage.setItem('puzzleSize', '');
-      localStorage.setItem('puzzle', '');
-      localStorage.setItem('emptyTile', '');
-      localStorage.setItem('moves', '');
-      localStorage.setItem('time', '');
-      localStorage.setItem('picture', '');
       this.createTiles();
       this.placeTiles();
       this.saveGame();
@@ -119,12 +106,23 @@ class GemPuzzle {
     this.createTable();
   }
 
+  setPuzzleSize(puzzleSize) {
+    if (localStorage.puzzleSize != null && localStorage.puzzleSize !== 0) {
+      this.parameters.puzzleSize = localStorage.puzzleSize;
+    } else if (puzzleSize < 3) {
+      this.parameters.puzzleSize = 3;
+    } else if (puzzleSize > 8) {
+      this.parameters.puzzleSize = 8;
+    } else {
+      this.parameters.puzzleSize = puzzleSize;
+    }
+  }
+
   createTiles() {
     this.elements.randomArray = this.createArr();
     this.elements.randomArray.forEach((el) => {
       const tile = document.createElement('div');
-      tile.classList.add('tile');
-      tile.classList.add(`tilesize${this.parameters.puzzleSize}`);
+      tile.classList.add('tile', `tilesize${this.parameters.puzzleSize}`);
       tile.setAttribute('draggable', 'true');
       tile.innerHTML = el;
       tile.numValue = el;
@@ -156,17 +154,8 @@ class GemPuzzle {
         this.elements.emptyTile.position = key + 1;
         el.position = 0;
       }
-      el.addEventListener('click', () => {
-        this.moveTile(key);
-      });
 
-      el.addEventListener('dragstart', (e) => {
-        this.dragStart(e);
-      });
-      el.addEventListener('dragend', (e) => {
-        this.dragEnd(e);
-      });
-
+      this.addListeners(el, key);
       this.elements.puzzle.append(el);
     });
   }
@@ -174,8 +163,7 @@ class GemPuzzle {
   reCreateAndPlaceTiles() {
     this.elements.savedTiles.forEach((el) => {
       const tile = document.createElement('div');
-      tile.classList.add('tile');
-      tile.classList.add(`tilesize${this.parameters.puzzleSize}`);
+      tile.classList.add('tile', `tilesize${this.parameters.puzzleSize}`);
       tile.setAttribute('draggable', 'true');
       tile.innerHTML = el.numValue;
       tile.numValue = el.numValue;
@@ -201,17 +189,7 @@ class GemPuzzle {
       el.style.left = `${el.left}px`;
       el.style.top = `${el.top}px`;
 
-      el.addEventListener('click', () => {
-        this.moveTile(el.key);
-      });
-
-      el.addEventListener('dragstart', (e) => {
-        this.dragStart(e);
-      });
-      el.addEventListener('dragend', (e) => {
-        this.dragEnd(e);
-      });
-
+      this.addListeners(el, el.key);
       this.elements.puzzle.append(el);
     });
     if (this.picture.isPicture) {
@@ -219,10 +197,22 @@ class GemPuzzle {
     }
   }
 
+  addListeners(element, key) {
+    element.addEventListener('click', () => {
+      this.moveTile(key);
+    });
+
+    element.addEventListener('dragstart', (e) => {
+      this.dragStart(e);
+    });
+    element.addEventListener('dragend', (e) => {
+      this.dragEnd(e);
+    });
+  }
+
   addPicture() {
-    this.picture.isPicture = true;
     if (this.parameters.isNewGame) {
-      this.picture.link = `assets/img/box/${(Math.floor(Math.random() * 1000)) % 150}.jpg`;
+      this.picture.link = `assets/img/box/${(Math.floor(Math.random() * SECOND)) % 150}.jpg`;
     }
 
     this.elements.tiles.forEach((element) => {
@@ -265,7 +255,7 @@ class GemPuzzle {
 
       this.counter.moves += 1;
 
-      this.elements.counter.moves.textContent = this.counter.moves; // счет хода
+      this.elements.counter.moves.textContent = this.counter.moves;
       if (this.parameters.isNewGame || this.parameters.retoredGame) {
         startTimer();
         this.parameters.isNewGame = false;
@@ -276,8 +266,15 @@ class GemPuzzle {
     }
   }
 
-  //---------------------------------
   saveGame() {
+    if (localStorage.puzzle == null) {
+      localStorage.setItem('puzzleSize', '');
+      localStorage.setItem('puzzle', '');
+      localStorage.setItem('emptyTile', '');
+      localStorage.setItem('moves', '');
+      localStorage.setItem('time', '');
+      localStorage.setItem('picture', '');
+    }
     localStorage.puzzleSize = this.parameters.puzzleSize;
     localStorage.puzzle = JSON.stringify(this.elements.tiles);
     localStorage.emptyTile = JSON.stringify(this.elements.emptyTile);
@@ -291,7 +288,7 @@ class GemPuzzle {
     this.parameters.puzzleSize = localStorage.puzzleSize;
     this.elements.savedTiles = JSON.parse(localStorage.puzzle);
     this.elements.savedEmptyTile = JSON.parse(localStorage.emptyTile);
-    this.counter.moves = localStorage.moves;
+    this.counter.moves = +localStorage.moves;
     this.counter.time = localStorage.time;
     if (localStorage.picture !== '') {
       this.picture.link = localStorage.picture;
@@ -304,15 +301,15 @@ class GemPuzzle {
 
   // --------------drag&drop-----------------
   dragStart(e) {
-    const k = e.target.key;
-    if ((Math.abs(this.elements.tiles[k].left - this.elements.emptyTile.left)
-    + Math.abs(this.elements.tiles[k].top - this.elements.emptyTile.top))
+    const { key } = e.target;
+    if ((Math.abs(this.elements.tiles[key].left - this.elements.emptyTile.left)
+    + Math.abs(this.elements.tiles[key].top - this.elements.emptyTile.top))
     === this.parameters.tileSize) {
       this.parameters.drag.X = e.clientX;
       this.parameters.drag.Y = e.clientY;
 
       setTimeout(() => {
-        this.elements.tiles[k].classList.add('hide');
+        this.elements.tiles[key].classList.add('hide');
       }, 0);
     }
   }
@@ -330,11 +327,10 @@ class GemPuzzle {
     this.elements.tiles[e.target.key].classList.remove('hide');
   }
 
-  // ----------------------------------------
   checkWin() {
     if (this.elements.tiles.every((el) => +el.innerHTML === el.position)) {
       stopTimer();
-      this.elements.modal.text.innerHTML = `<p>Ура! Вы решили головоломку</p><p>за ${this.elements.counter.timer.innerHTML} и ${this.counter.moves} ход${GemPuzzle.grammaticalCase(this.counter.moves)}</p>`;
+      this.createWinMessage();
       this.showModal();
       this.parameters.isEndGame = true;
       this.saveResult();
@@ -344,6 +340,16 @@ class GemPuzzle {
         this.elements.puzzle.style.backgroundSize = '100%';
       }
     }
+  }
+
+  createWinMessage() {
+    const text1 = document.createElement('p');
+    const text2 = document.createElement('p');
+    text1.textContent = 'Ура! Вы решили головоломку';
+    text2.textContent = `за ${this.elements.counter.timer.innerHTML} и ${this.counter.moves} ход${grammaticalCase(this.counter.moves)}`;
+    this.elements.modal.text.innerHTML = '';
+    this.elements.modal.text.append(text1);
+    this.elements.modal.text.append(text2);
   }
 
   saveResult() {
@@ -376,113 +382,89 @@ class GemPuzzle {
     }
   }
 
-  createArr() { // массив с рандомными числами
+  createArr() { // array with random numbers
     const size = this.parameters.puzzleSize;
     let puzzle = [];
-    for (let i = 0; i < size ** 2; i += 1) puzzle.push(i);
+    for (let i = 0; i < size ** 2; i += 1) { puzzle.push(i); }
 
-    function mix() {
-      puzzle = puzzle.sort(() => Math.random() - 0.5);
-    }
-    mix();
+    puzzle = mix(puzzle);
 
-    // проверка четности расклада
-    function checkEven() {
-      let sum = 0;
-      const l = puzzle.length;
-      for (let i = 0; i < l; i += 1) {
-        let k = 0;
-        for (let j = 0; j < l; j += 1) {
-          if (i < j && puzzle[i] > puzzle[j] && puzzle[j] !== 0) {
-            k += 1;
-          }
-        }
-        sum += k;
-      }
-
-      if (size % 2 === 0) {
-        sum += Math.ceil((puzzle.indexOf(0) + 1) / size);
-      }
-
-      if (sum % 2 === 0) {
-        return true;
-      }
-      return false;
-    }
-
-    while (!checkEven()) {
-      mix();
+    while (!checkEven(puzzle, size)) {
+      puzzle = mix(puzzle);
     }
     return puzzle;
   }
 
   createCounter() {
-    this.elements.counter.counter = document.createElement('div');
-    this.elements.counter.counter.classList.add('counter');
+    const { counter } = this.elements;
+    counter.counter = document.createElement('div');
+    counter.counter.classList.add('counter');
 
-    this.elements.counter.moves = document.createElement('div');
-    this.elements.counter.moves.classList.add('moves');
-    this.elements.counter.moves.textContent = this.counter.moves;
+    counter.moves = document.createElement('div');
+    counter.moves.classList.add('moves');
+    counter.moves.textContent = this.counter.moves;
 
-    this.elements.counter.timer = document.createElement('div');
-    this.elements.counter.timer.classList.add('timer');
-    if (localStorage.time != null && localStorage.time !== 0) {
-      const t = localStorage.time;
-      const s = t % 60;
-      const m = Math.floor(t / 60) % 3600;
-      this.elements.counter.timer.textContent = `${addZero(m)}:${addZero(s)}`;
+    counter.timer = document.createElement('div');
+    counter.timer.classList.add('timer');
+    if (localStorage.time) {
+      const { time } = localStorage;
+      const seconds = time % 60;
+      const minutes = Math.floor(time / 60) % 3600;
+      counter.timer.textContent = `${addZero(minutes)}:${addZero(seconds)}`;
     } else {
-      this.elements.counter.timer.textContent = '00:00';
+      counter.timer.textContent = '00:00';
     }
 
-    this.elements.counter.counter.append(this.elements.counter.moves);
-    this.elements.counter.counter.append(this.elements.counter.timer);
-    this.elements.main.append(this.elements.counter.counter);
+    counter.counter.append(counter.moves);
+    counter.counter.append(counter.timer);
+    this.elements.main.append(counter.counter);
   }
 
   createMenu() {
-    this.elements.menu.menu = document.createElement('div');
-    this.elements.menu.menu.classList.add('menu');
+    const { menu } = this.elements;
+    menu.menu = document.createElement('div');
+    menu.menu.classList.add('menu');
 
-    this.elements.menu.newGame = document.createElement('button');
-    this.elements.menu.newGame.classList.add('button');
-    this.elements.menu.newGame.textContent = 'Начать новый пазл';
-    this.elements.menu.newGame.addEventListener('click', () => {
+    menu.newGame = document.createElement('button');
+    menu.newGame.classList.add('button');
+    menu.newGame.textContent = 'Начать новый пазл';
+    menu.newGame.addEventListener('click', () => {
       this.newGame();
     });
 
-    this.elements.menu.newGamePic = document.createElement('button');
-    this.elements.menu.newGamePic.classList.add('button');
-    this.elements.menu.newGamePic.textContent = 'Новый пазл с картинкой';
-    this.elements.menu.newGamePic.addEventListener('click', () => {
+    menu.newGamePic = document.createElement('button');
+    menu.newGamePic.classList.add('button');
+    menu.newGamePic.textContent = 'Новый пазл с картинкой';
+    menu.newGamePic.addEventListener('click', () => {
       this.newGame();
+      this.picture.isPicture = true;
       this.addPicture();
     });
 
-    this.elements.menu.newGameSize = document.createElement('select');
-    this.elements.menu.newGameSize.setAttribute('name', 'select');
-    this.elements.menu.newGameSize.classList.add('input');
+    menu.newGameSize = document.createElement('select');
+    menu.newGameSize.setAttribute('name', 'select');
+    menu.newGameSize.classList.add('input');
 
     for (let i = 3; i < 9; i += 1) {
       const option = document.createElement('option');
       option.setAttribute('value', i);
       if (i === 4) option.setAttribute('selected', 'selected');
       option.textContent = `Размер поля ${i}х${i}`;
-      this.elements.menu.newGameSize.append(option);
+      menu.newGameSize.append(option);
     }
 
-    this.elements.menu.table = document.createElement('button');
-    this.elements.menu.table.classList.add('button');
-    this.elements.menu.table.textContent = 'Таблица лучших результатов';
-    this.elements.menu.table.addEventListener('click', () => {
+    menu.table = document.createElement('button');
+    menu.table.classList.add('button');
+    menu.table.textContent = 'Таблица лучших результатов';
+    menu.table.addEventListener('click', () => {
       this.createResultTable();
       this.showTable();
     });
 
-    this.elements.menu.finish = document.createElement('button');
-    this.elements.menu.finish.classList.add('button');
-    this.elements.menu.finish.textContent = 'Завершить автоматически';
-    this.elements.menu.finish.addEventListener('click', () => {
+    menu.finish = document.createElement('button');
+    menu.finish.classList.add('button');
+    menu.finish.textContent = 'Завершить автоматически';
+    menu.finish.addEventListener('click', () => {
       const moves = countWay(this.elements.randomArray);
       let i = 0;
       const moving = setInterval(() => {
@@ -492,54 +474,38 @@ class GemPuzzle {
       setTimeout(() => { clearInterval(moving); }, 600000);
     });
 
-    this.elements.menu.volume = document.createElement('button');
-    this.elements.menu.volume.setAttribute('type', 'button');
-    this.elements.menu.volume.classList.add('volume');
-    this.elements.menu.volume.innerHTML = '<i class="material-icons">volume_off</i>';
-    this.elements.menu.volume.addEventListener('click', () => {
-      this.parameters.volume = !this.parameters.volume;
-      if (this.parameters.volume) {
-        this.elements.menu.volume.innerHTML = '<i class="material-icons">volume_up</i>';
-      } else {
-        this.elements.menu.volume.innerHTML = '<i class="material-icons">volume_off</i>';
-      }
+    menu.volume = document.createElement('button');
+    menu.volume.setAttribute('type', 'button');
+    menu.volume.classList.add('volume');
+    menu.volume.innerHTML = '<i class="material-icons">volume_off</i>';
+    menu.volume.addEventListener('click', () => {
+      this.handleVolumeButtonClick();
     });
     this.elements.audio = document.createElement('audio');
     this.elements.audio.setAttribute('src', 'assets/tink.wav');
 
-    this.elements.menu.hideDig = document.createElement('button');
-    this.elements.menu.hideDig.setAttribute('type', 'button');
-    this.elements.menu.hideDig.classList.add('volume');
-    this.elements.menu.hideDig.innerHTML = '<i class="material-icons">visibility</i>';
-    this.elements.menu.hideDig.addEventListener('click', () => {
-      if (this.picture.isPicture) {
-        this.picture.digits = !this.picture.digits;
-        this.elements.tiles.forEach((el) => {
-          el.classList.toggle('hideDigigts');
-        });
-
-        if (this.picture.digits) {
-          this.elements.menu.hideDig.innerHTML = '<i class="material-icons">visibility</i>';
-        } else {
-          this.elements.menu.hideDig.innerHTML = '<i class="material-icons">visibility_off</i>';
-        }
-      }
+    menu.hideDig = document.createElement('button');
+    menu.hideDig.setAttribute('type', 'button');
+    menu.hideDig.classList.add('volume');
+    menu.hideDig.innerHTML = '<i class="material-icons">visibility</i>';
+    menu.hideDig.addEventListener('click', () => {
+      this.handleDigitsView();
     });
 
     const settings = document.createElement('div');
     settings.classList.add('settings');
-    settings.append(this.elements.menu.hideDig);
-    settings.append(this.elements.menu.volume);
+    settings.append(menu.hideDig);
+    settings.append(menu.volume);
 
-    this.elements.menu.menu.append(this.elements.menu.newGame);
-    this.elements.menu.menu.append(this.elements.menu.newGamePic);
-    this.elements.menu.menu.append(this.elements.menu.newGameSize);
-    this.elements.menu.menu.append(this.elements.menu.table);
-    this.elements.menu.menu.append(this.elements.menu.finish);
-    this.elements.menu.menu.append(settings);
-    this.elements.menu.menu.append(this.elements.audio);
+    menu.menu.append(menu.newGame);
+    menu.menu.append(menu.newGamePic);
+    menu.menu.append(menu.newGameSize);
+    menu.menu.append(menu.table);
+    menu.menu.append(menu.finish);
+    menu.menu.append(settings);
+    menu.menu.append(this.elements.audio);
 
-    this.elements.main.append(this.elements.menu.menu);
+    this.elements.main.append(menu.menu);
   }
 
   playSound() {
@@ -550,39 +516,64 @@ class GemPuzzle {
     }
   }
 
-  // ------------модальное окно-------------------------
+  handleVolumeButtonClick() {
+    this.parameters.volume = !this.parameters.volume;
+    if (this.parameters.volume) {
+      this.elements.menu.volume.innerHTML = '<i class="material-icons">volume_up</i>';
+    } else {
+      this.elements.menu.volume.innerHTML = '<i class="material-icons">volume_off</i>';
+    }
+  }
+
+  handleDigitsView() {
+    if (this.picture.isPicture) {
+      this.picture.digits = !this.picture.digits;
+      this.elements.tiles.forEach((el) => {
+        el.classList.toggle('hideDigits');
+      });
+
+      if (this.picture.digits) {
+        this.elements.menu.hideDig.innerHTML = '<i class="material-icons">visibility</i>';
+      } else {
+        this.elements.menu.hideDig.innerHTML = '<i class="material-icons">visibility_off</i>';
+      }
+    }
+  }
+
+  // ------------modal window-------------------------
   createModal() {
     const body = document.querySelector('.body');
-    this.elements.modal.modal = document.createElement('div');
-    this.elements.modal.modal.classList.add('modal');
+    const { modal } = this.elements;
+    modal.modal = document.createElement('div');
+    modal.modal.classList.add('modal');
 
-    this.elements.modal.text = document.createElement('div');
-    this.elements.modal.text.classList.add('modaltext');
+    modal.text = document.createElement('div');
+    modal.text.classList.add('modaltext');
 
     const buttons = document.createElement('div');
     buttons.classList.add('btns');
-    this.elements.modal.ok = document.createElement('button');
-    this.elements.modal.ok.classList.add('modalbutton');
-    this.elements.modal.ok.textContent = 'Ok';
-    this.elements.modal.ok.addEventListener('click', () => {
+    modal.ok = document.createElement('button');
+    modal.ok.classList.add('modalbutton');
+    modal.ok.textContent = 'Ok';
+    modal.ok.addEventListener('click', () => {
       this.hideModal();
     });
 
-    this.elements.modal.newGame = document.createElement('button');
-    this.elements.modal.newGame.classList.add('modalbutton');
-    this.elements.modal.newGame.textContent = 'Начать новый пазл';
-    this.elements.modal.newGame.addEventListener('click', () => {
+    modal.newGame = document.createElement('button');
+    modal.newGame.classList.add('modalbutton');
+    modal.newGame.textContent = 'Начать новый пазл';
+    modal.newGame.addEventListener('click', () => {
       this.hideModal();
       this.newGame();
     });
 
-    buttons.append(this.elements.modal.ok);
-    buttons.append(this.elements.modal.newGame);
+    buttons.append(modal.ok);
+    buttons.append(modal.newGame);
 
-    this.elements.modal.modal.append(this.elements.modal.text);
-    this.elements.modal.modal.append(buttons);
+    modal.modal.append(modal.text);
+    modal.modal.append(buttons);
 
-    body.append(this.elements.modal.modal);
+    body.append(modal.modal);
   }
 
   showModal() {
@@ -593,47 +584,66 @@ class GemPuzzle {
     this.elements.modal.modal.classList.toggle('modal-active');
   }
 
-  // -------------------таблица результатов----------------------------
+  // -------------------table of results----------------------------
   createTable() {
     const body = document.querySelector('.body');
-    this.elements.table.modal = document.createElement('div');
-    this.elements.table.modal.classList.add('table');
+    const { table } = this.elements;
+    table.modal = document.createElement('div');
+    table.modal.classList.add('table');
 
-    this.elements.table.table = document.createElement('table');
-    this.elements.table.table.classList.add('table-item');
+    table.table = document.createElement('table');
+    table.table.classList.add('table-item');
 
-    this.elements.table.ok = document.createElement('button');
-    this.elements.table.ok.classList.add('modalbutton');
-    this.elements.table.ok.textContent = 'Ok';
-    this.elements.table.ok.addEventListener('click', () => {
+    table.ok = document.createElement('button');
+    table.ok.classList.add('modalbutton');
+    table.ok.textContent = 'Ok';
+    table.ok.addEventListener('click', () => {
       this.hideTable();
     });
 
-    this.elements.table.modal.append(this.elements.table.table);
-    this.elements.table.modal.append(this.elements.table.ok);
+    table.modal.append(table.table);
+    table.modal.append(table.ok);
 
-    body.append(this.elements.table.modal);
+    body.append(table.modal);
   }
 
   createResultTable() {
-    let table;
-    if (localStorage.bestResult != null && localStorage.bestResult !== '') {
-      table = JSON.parse(localStorage.bestResult);
+    let results;
+    const { table } = this.elements;
+    if (localStorage.bestResult) {
+      results = JSON.parse(localStorage.bestResult);
 
-      const thead = '<thead><th>Дата</th><th>Поле</th><th>Время</th><th>Ходов</th></thead>';
-      let tr = '';
-      table.forEach((el) => {
-        tr += '<tr>';
-        tr += `<td>${el.date}</td>`;
-        tr += `<td>${el.puzzleSize}</td>`;
-        tr += `<td>${el.time}</td>`;
-        tr += `<td>${el.moves}</td>`;
-        tr += '</tr>';
+      const thead = document.createElement('thead');
+      const th1 = document.createElement('th');
+      const th2 = document.createElement('th');
+      const th3 = document.createElement('th');
+      const th4 = document.createElement('th');
+      th1.textContent = 'Дата';
+      th2.textContent = 'Поле';
+      th3.textContent = 'Время';
+      th4.textContent = 'Ходов';
+      thead.append(th1);
+      thead.append(th2);
+      thead.append(th3);
+      thead.append(th4);
+
+      table.table.append(thead);
+
+      results.forEach((el) => {
+        const row = table.table.insertRow(-1);
+
+        const date = row.insertCell(0);
+        const field = row.insertCell(1);
+        const time = row.insertCell(2);
+        const move = row.insertCell(3);
+
+        date.textContent = el.date;
+        field.textContent = el.puzzleSize;
+        time.textContent = el.time;
+        move.textContent = el.moves;
       });
-      this.elements.table.table.innerHTML += thead;
-      this.elements.table.table.innerHTML += tr;
     } else {
-      this.elements.table.table.innerHTML = 'Результатов еще нет';
+      table.table.innerHTML = 'Результатов еще нет';
     }
   }
 
@@ -644,16 +654,6 @@ class GemPuzzle {
   hideTable() {
     this.elements.table.modal.classList.toggle('table-active');
     this.elements.table.table.innerHTML = '';
-  }
-
-  //---------------------------------------------------------
-  static grammaticalCase(n) {
-    if (n % 10 === 1) {
-      return '';
-    } if (n % 10 > 1 && n % 10 < 5) {
-      return 'a';
-    }
-    return 'ов';
   }
 
   newGame() {
@@ -691,27 +691,67 @@ class GemPuzzle {
 
 const puzzle = new GemPuzzle();
 puzzle.init();
+
+function mix(arr) {
+  let array = [];
+  [...array] = [...arr];
+  array = array.sort(() => Math.random() - 0.5);
+  return array;
+}
+
+function checkEven(array, size) {
+  let sum = 0;
+  const l = array.length;
+  for (let i = 0; i < l; i += 1) {
+    let k = 0;
+    for (let j = 0; j < l; j += 1) {
+      if (i < j && array[i] > array[j] && array[j] !== 0) {
+        k += 1;
+      }
+    }
+    sum += k;
+  }
+
+  if (size % 2 === 0) {
+    sum += Math.ceil((array.indexOf(0) + 1) / size);
+  }
+
+  if (sum % 2 === 0) {
+    return true;
+  }
+  return false;
+}
+
 function addZero(n) {
   return (parseInt(n, 10) < 10 ? '0' : '') + n;
+}
+
+function grammaticalCase(n) {
+  if (n % 10 === 1) {
+    return '';
+  } if (n % 10 > 1 && n % 10 < 5) {
+    return 'a';
+  }
+  return 'ов';
 }
 
 function startTimer() {
   if (puzzle.counter.startTime == null
         && puzzle.counter.time != null
         && puzzle.counter.time !== 0) {
-    puzzle.counter.startTime = Date.now() - puzzle.counter.time * 1000;
+    puzzle.counter.startTime = Date.now() - puzzle.counter.time * SECOND;
   } else if (puzzle.counter.startTime == null) {
     puzzle.counter.startTime = Date.now();
   }
 
-  const t = Math.floor((Date.now() - puzzle.counter.startTime) / 1000);
-  localStorage.time = t;
-  const s = t % 60;
-  const m = Math.floor(t / 60) % 3600;
-  puzzle.elements.counter.timer.textContent = `${addZero(m)}:${addZero(s)}`;
+  const time = Math.floor((Date.now() - puzzle.counter.startTime) / SECOND);
+  localStorage.time = time;
+  const seconds = time % 60;
+  const minutes = Math.floor(time / 60) % 3600;
+  puzzle.elements.counter.timer.textContent = `${addZero(minutes)}:${addZero(seconds)}`;
 
   if (puzzle.counter.endTime == null) {
-    puzzle.counter.timeoutID = setTimeout(startTimer, 1000);
+    puzzle.counter.timeoutID = setTimeout(startTimer, SECOND);
   }
 }
 
