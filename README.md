@@ -1,2 +1,4 @@
-# vmg999-JS2020Q3
-Private repository for @vmg999
+# vmg999
+gem-puzzle game
+
+![](https://i.imgur.com/qQNvhHe.png)
